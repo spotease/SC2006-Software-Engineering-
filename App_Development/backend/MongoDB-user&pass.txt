@@ -1,0 +1,4 @@
+npm install express mongoose cors dotenv bcryptjs jsonwebtoken
+node server.js
+
+git remote add origin https://github.com/yunjialeee/SC2006-Software-Engineering-
