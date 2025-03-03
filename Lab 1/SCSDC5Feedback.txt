@@ -1,0 +1,34 @@
+Overall, Lab 1 is complete with minor changes required. Very detailed, however, some of the requirements might be difficult to implement
+
+Functional Requirements: 
+[1] 1.1.2 Put as bullet point under 1.1.1
+[2] 3.1.1 Put as bullet point under 3.1
+[3] 3.5 Error handling can be modelled as alternate flow not a requirement
+[4] 4.1 Change filter options into data dictionary
+[5] 4.2.1 is the requirement, 4.2 can be removed
+[6] 6.4 The system shall provide.....
+[7] 9.3 Registerd users must be able to view their search history
+[8] 9.4 Dont have to write the opposite, its automatically assumed that guest accounts must not have access when not stated.
+
+
+Non-Functional Requirements: 
+[1] Might want to remove multi-language if not confident of implementing
+[2] Most web browsers, better to state which browser and version
+[3] Voice command functionality is not found in FR although recommend remove as difficult to implemnent
+
+Data Dictionary: 
+1. Correct, No comments
+
+Initial Use Case Diagram: 
+1. Use case bubbles should include a verb as the first word of the bubble
+2. Add Generalisation arrow to guest as account holder can do whatever a guest can do
+
+
+Use Case Description: 
+1. Alternative Flows should have numbering as well 
+For example, AF-2S, 2S represents the second step of [Flow of events] where this alernate flow is diverted from.
+2. Exception should have numbering as well
+For example: EX-1-2S
+
+UI Mockup:
+All UIs match Functional Requirements
