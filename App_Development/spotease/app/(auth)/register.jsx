@@ -12,26 +12,45 @@ export default function register() {
     const [password1, setPassword1] = useState("");
     const [error, setError] = useState("");
 
-    const handleRegister = () => {
-      //if either fields are empty
-      if (!email.trim() || !password.trim())
-      {
-        Alert.alert("Error","Email and Password cannot be empty. Try again.");
+    const handleRegister = async () => {
+      setError(""); // Clear previous errors
+    
+      if (!email.trim() || !password.trim() || !password1.trim()) {
+        setError("Email and Password cannot be empty.");
         return;
       }
-
-      //password does not match
-      if (password != password1){
+    
+      if (password !== password1) {
         setError("Passwords do not match! Please try again.");
-        Alert.alert("Error","Passwords do not match! Please try again.");
-        setPassword1(""); //clear the input field to allow user to enter password again
         return;
       }
-
-      //password matches - return to login page
-      Alert.alert("Success","Account registered successfully.");
-      router.push("/login");
-    }
+    
+      try {
+        const response = await fetch("http://192.168.1.8:5001/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+    
+        const data = await response.json();
+    
+        if (data.data === "User already exists") {
+          setError("User already exists! Try logging in.");
+          return;
+        }
+    
+        if (data.status === "User registered") {
+          Alert.alert("Success", "Account registered successfully.");
+          router.push("/login");
+        } else {
+          setError("Registration failed. Try again.");
+        }
+      } catch (error) {
+        console.error(error);
+        setError("Server error. Please try again later.");
+      }
+    };
+    
 
     return (
     <View style={styles.container}>
