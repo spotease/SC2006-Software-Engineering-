@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); // Import bcrypt for hashing passwords
 const cors = require('cors'); // Allow cross-origin requests
 
+require('dotenv').config(); // Load environment variables from .env file
+
 const app = express();
 app.use(express.json()); // Enable JSON parsing
 app.use(cors()); // Enable CORS
 
-const mongoUrl = "mongodb+srv://CJ_Admin:xcnQZiI5N4RlteOd@spoteasecluster0.fhyd7.mongodb.net/SpotEase_Auth?retryWrites=true&w=majority&appName=SpotEaseCluster0";
+const mongoUrl = process.env.MONGO_Auth_URL; // Load MongoDB URL from environment variables
 
 mongoose.connect(mongoUrl).then(() => {
     console.log('Connected to MongoDB');
