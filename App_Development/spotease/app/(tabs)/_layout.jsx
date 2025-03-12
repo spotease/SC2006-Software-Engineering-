@@ -7,7 +7,8 @@ import Octicons from '@expo/vector-icons/Octicons';
 import { Colors } from './../../constants/Colors';
 
 const TABS = [
-  { name: 'home', label: 'Home', icon: (color) => <AntDesign name="home" size={24} color={color} /> },
+  //{ name: 'home', label: 'Home', icon: (color) => <AntDesign name="home" size={24} color={color} /> },
+  { name: 'homeTest', label: 'Home', icon: (color) => <AntDesign name="home" size={24} color={color} /> },
   { name: 'activity', label: 'Activity', icon: (color) => <Octicons name="checklist" size={24} color={color} /> },
   { name: 'history', label: 'History', icon: (color) => <MaterialIcons name="location-history" size={24} color={color} /> },
 ];
