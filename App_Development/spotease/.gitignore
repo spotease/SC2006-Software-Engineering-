@@ -39,5 +39,9 @@ app-example
 
 
 #API URL
+<<<<<<< HEAD
 .env
+=======
+
+>>>>>>> 281bc26 (Enhance backend API with improved CORS configuration, MongoDB connection handling, and user registration logic; update frontend registration component for better error handling and API integration.)
 
