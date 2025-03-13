@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import EntryBox from "../../components/EntryBox";
 import CustomButton from "../../components/CustomButton";
 import logo from '../../assets/images/SpotEaseLogo.png';
-import {Render_API_URL} from '@env'
+import {Render_API_URL} from '@env';
 
 export default function Register() {
     const router = useRouter();
@@ -58,7 +58,7 @@ export default function Register() {
             }
         } catch (error) {
             console.error("Fetch error:", error);
-            setError("Server error. Please try again later.");
+            Alert.alert("Error","Internal Server Error");
         }
     };
 
