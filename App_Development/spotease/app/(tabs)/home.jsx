@@ -1,38 +1,44 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, FlatList, Text, TouchableOpacity } from 'react-native';
-import MapView from 'react-native-maps';
-import SearchBar from '../../components/SearchBar';
-import FilterButton from '../../components/FilterButton';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router'; 
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import MapView from "react-native-maps";
+import SearchBar from "../../components/SearchBar";
+import FilterButton from "../../components/FilterButton";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 const carParks = [
-  { 
-    id: 1, 
-    name: "The Wave", 
-    address: "110 Nanyang Cres, Singapore 636956", 
-    distance: "500M", 
-    availableLots: 50, 
-    parkingRates: "$1.50/hour", 
-    googleReview: "4.5/5" 
+  {
+    id: 1,
+    name: "The Wave",
+    address: "110 Nanyang Cres, Singapore 636956",
+    distance: "500M",
+    availableLots: 50,
+    parkingRates: "$1.50/hour",
+    googleReview: "4.5/5",
   },
-  { 
-    id: 2, 
-    name: "The Hive", 
-    address: "52 Nanyang Ave · 6791 1744", 
-    distance: "800M", 
-    availableLots: 30, 
-    parkingRates: "$2.00/hour", 
-    googleReview: "4.2/5" 
+  {
+    id: 2,
+    name: "The Hive",
+    address: "52 Nanyang Ave · 6791 1744",
+    distance: "800M",
+    availableLots: 30,
+    parkingRates: "$2.00/hour",
+    googleReview: "4.2/5",
   },
-  { 
-    id: 3, 
-    name: "Marina Barrage", 
-    address: "8 Marina Gardens Dr, Singapore 018951", 
-    distance: "2KM", 
-    availableLots: 100, 
-    parkingRates: "$1.00/hour", 
-    googleReview: "4.7/5" 
+  {
+    id: 3,
+    name: "Marina Barrage",
+    address: "8 Marina Gardens Dr, Singapore 018951",
+    distance: "2KM",
+    availableLots: 100,
+    parkingRates: "$1.00/hour",
+    googleReview: "4.7/5",
   },
 ]; // Mock data with details
 
@@ -72,7 +78,10 @@ const Home = () => {
           filterOptions={filterOptions}
           onFilterSelect={handleFilterSelect}
         >
-          <TouchableOpacity style={styles.filterIconContainer} onPress={() => {}}>
+          <TouchableOpacity
+            style={styles.filterIconContainer}
+            onPress={() => {}}
+          >
             <Ionicons name="filter" size={20} color="#00C3FF" />
           </TouchableOpacity>
         </FilterButton>
@@ -93,12 +102,14 @@ const Home = () => {
           data={searchResults}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity 
-              style={styles.carParkItem} 
-              onPress={() => router.push({
-                pathname: '/viewCarParkDetails',
-                params: { carPark: JSON.stringify(item) } // Pass car park details as params
-              })}
+            <TouchableOpacity
+              style={styles.carParkItem}
+              onPress={() =>
+                router.push({
+                  pathname: "/viewCarParkDetails",
+                  params: { carPark: JSON.stringify(item) }, // Pass car park details as params
+                })
+              }
             >
               <Text style={styles.carParkName}>{item.name}</Text>
               <Text style={styles.carParkAddress}>{item.address}</Text>
@@ -117,23 +128,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#1E1E1E",
   },
   searchWrapper: {
-    position: 'absolute',
+    position: "absolute",
     top: 50,
     left: 10,
     right: 10,
     zIndex: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   searchBarContainer: {
     flex: 1,
     marginRight: 5,
   },
   filterIconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2E2E2E',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2E2E2E",
     padding: 12,
     borderRadius: 30,
     shadowColor: "#000",
@@ -145,23 +156,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   carParkItem: {
-    backgroundColor: '#2E2E2E',
+    backgroundColor: "#2E2E2E",
     padding: 10,
     marginVertical: 5,
     borderRadius: 10,
   },
   carParkName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   carParkAddress: {
     fontSize: 14,
-    color: '#CCCCCC',
+    color: "#CCCCCC",
   },
   carParkDistance: {
     fontSize: 12,
-    color: '#00C3FF',
+    color: "#00C3FF",
   },
 });
 

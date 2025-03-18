@@ -5,15 +5,21 @@ import EntryBox from "../../components/EntryBox";
 import CustomButton from "../../components/CustomButton";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import JustTextButton from '../../components/JustTextButton';
-
 import logo from '../../assets/images/SpotEaseLogo.png';
+import Config from 'react-native-config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
+const API_URL = `https://sc2006-backend-spotease.onrender.com/login`;
+console.log(API_URL);
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin  = async() => {
     //if either fields are empty
     if (!email.trim() || !password.trim())
     {
@@ -21,8 +27,38 @@ export default function Login() {
       return;
     }
 
-    //if both fields are filled
-    router.push("/home");
+    try{
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const text = await response.text();
+      console.log("Raw API response:", text);
+
+      let data;
+      try{
+        data = JSON.parse(text);
+      }catch(err){
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
+
+      if (data.error) {
+        Alert.alert("Login Failed", data.error);
+        return;
+      }
+  
+      // ✅ Save JWT Token for Authentication
+      await AsyncStorage.setItem("authToken", data.token);
+  
+      Alert.alert("Success", "Login successful!");
+      router.push("/home");
+    }
+    catch(error){
+      console.error("Fetch error:", error);
+      Alert.alert("Error","Internal Server Error");
+    }
   }
   return (
     <View style={styles.container}>
