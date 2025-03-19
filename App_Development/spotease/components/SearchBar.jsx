@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import { View, TextInput, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
 
   const handleSubmit = () => {
     onSearch(query);
+  };
+
+  const handleChangeText = (updatedQuery) => {
+    setQuery(updatedQuery); // Update query with the text input
+    onSearch(updatedQuery); // Call onSearch with the updated query
   };
 
   return (
@@ -17,7 +22,7 @@ const SearchBar = ({ onSearch }) => {
         placeholderTextColor="#AAAAAA"
         style={styles.input}
         value={query}
-        onChangeText={setQuery}
+        onChangeText={handleChangeText}
         onSubmitEditing={handleSubmit}
       />
     </View>
@@ -26,9 +31,9 @@ const SearchBar = ({ onSearch }) => {
 
 const styles = StyleSheet.create({
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2E2E2E',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#2E2E2E",
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 30,
@@ -43,7 +48,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
   },
 });
