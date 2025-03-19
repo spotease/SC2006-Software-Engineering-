@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Button, StyleSheet, ScrollView } from "react-native";
-import { SearchBar } from "react-native-elements";
+//import { SearchBar } from "react-native-elements";
+import SearchBar from "../../components/SearchBar";
 
 export default function homeTest() {
   let [searchResults, setSearchResults] = useState(null);
@@ -69,13 +70,14 @@ export default function homeTest() {
       ) : (
         <Text>No results found.</Text>
       )}
-      <SearchBar
+      {/* <SearchBar
         style={styles.searchBar}
         placeholder="Enter search query"
         onChangeText={(userInput) => setUserInput(userInput)}
         clearButtonMode="always"
         value={userInput}
-      />
+      /> */}
+      <SearchBar onSearch={setUserInput} />
       <Text>{userInput}</Text>
       <Button title="Fetch Data" onPress={fetchSearch} />
     </View>
