@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList, Text, TouchableOpacity } from "react-native";
-import MapView, { Marker } from "react-native-maps";
 import {
   View,
   StyleSheet,
@@ -116,8 +114,14 @@ const Home = () => {
           <SearchBar query={searchQuery} onSearch={setSearchQuery} />
         </View>
 
-        <FilterButton filterOptions={filterOptions} onFilterSelect={handleFilterSelect}>
-          <TouchableOpacity style={styles.filterIconContainer} onPress={() => {}}>
+        <FilterButton
+          filterOptions={filterOptions}
+          onFilterSelect={handleFilterSelect}
+        >
+          <TouchableOpacity
+            style={styles.filterIconContainer}
+            onPress={() => {}}
+          >
             <Ionicons name="filter" size={20} color="#00C3FF" />
           </TouchableOpacity>
         </FilterButton>
@@ -127,7 +131,7 @@ const Home = () => {
         style={styles.map}
         region={
           location || {
-            latitude: 1.3521, // Default: Singapore if current location is denied 
+            latitude: 1.3521, // Default: Singapore if current location is denied
             longitude: 103.8198,
             latitudeDelta: 0.1,
             longitudeDelta: 0.1,
@@ -146,8 +150,6 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
-        showsUserLocation={true}
-        showsMyLocationButton={true}
         {processedResults &&
           processedResults.map((carPark, index) => (
             <Marker
