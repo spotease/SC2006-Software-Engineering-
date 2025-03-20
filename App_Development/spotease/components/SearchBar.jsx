@@ -1,17 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TextInput, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const SearchBar = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
-
+const SearchBar = ({ query, onSearch }) => {
   const handleSubmit = () => {
     onSearch(query);
   };
 
-  const handleChangeText = (updatedQuery) => {
-    setQuery(updatedQuery); // Update query with the text input
-    onSearch(updatedQuery); // Call onSearch with the updated query
+  const handleChangeText = (query) => {
+    onSearch(query);
   };
 
   return (

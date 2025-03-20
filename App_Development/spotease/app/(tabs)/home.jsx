@@ -6,11 +6,10 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import searchAPI from "../../hooks/searchAPI";
 import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 const carParks = [
@@ -49,11 +48,39 @@ const Home = () => {
   const [processedResults, setProcessedResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
+  const [mapMarkers, setMapMarkers] = useState([]);
+  const [destMarker, setDestMarker] = useState({});
 
   const handleFilterSelect = (filters) => {
     setSelectedFilters(filters);
     console.log("Selected filters:", filters);
     // filter logic here
+  };
+
+  const handleDestinationPress = (item) => {
+    const markerProperties = {
+      ADDRESS: item.ADDRESS,
+      LATITUDE: item.LATITUDE,
+      LONGITUDE: item.LONGITUDE,
+      X: item.X,
+      Y: item.Y,
+    };
+    setDestMarker(markerProperties);
+    setSearchQuery("");
+    console.log("Destination Selected");
+  };
+
+  const addMarker = (item) => {
+    const newMarker = {
+      id: mapMarkers.length + 1,
+      ADDRESS: item.ADDRESS,
+      LATITUDE: item.LATITUDE,
+      LONGITUDE: item.LONGITUDE,
+      X: item.X,
+      Y: item.Y,
+    };
+
+    setMapMarkers((prevMapMarkers) => [...prevMapMarkers, newMarker]);
   };
 
   const filterOptions = [
@@ -66,7 +93,6 @@ const Home = () => {
   useEffect(() => {
     if (searchResults && searchResults.results) {
       const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      console.log(slicedResults);
       const processing = slicedResults.map((result) => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
@@ -80,7 +106,6 @@ const Home = () => {
           Y,
         };
       });
-      console.log(processing);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
     } else {
@@ -92,7 +117,7 @@ const Home = () => {
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
         <View style={styles.searchBarContainer}>
-          <SearchBar onSearch={setSearchQuery} />
+          <SearchBar query={searchQuery} onSearch={setSearchQuery} />
         </View>
 
         <FilterButton
@@ -116,14 +141,30 @@ const Home = () => {
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }} // Singapore
-      />
+      >
+        {/*Destination Marker*/}
+        {destMarker.LATITUDE && destMarker.LONGITUDE && (
+          <Marker
+            coordinate={{
+              latitude: destMarker.LATITUDE,
+              longitude: destMarker.LONGITUDE,
+            }}
+          ></Marker>
+        )}
+        {/* You can customize the marker */}
+      </MapView>
 
       {resultAvailable && !loadingFlag && (
         <FlatList
           data={processedResults} // Use processedResult as data
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.itemContainer}>
+            <TouchableOpacity
+              style={styles.itemContainer}
+              onPress={() => {
+                handleDestinationPress(item);
+              }}
+            >
               <View style={styles.box}>
                 <Text style={styles.carParkAddress}>{item.ADDRESS}</Text>
               </View>
