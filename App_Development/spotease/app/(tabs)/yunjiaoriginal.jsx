@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -11,8 +11,7 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import searchAPI from "../../hooks/searchAPI";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
+
 const carParks = [
   {
     id: 1,
@@ -44,11 +43,16 @@ const carParks = [
 ]; // Mock data with details
 
 const Home = () => {
+  const [searchResults, setSearchResults] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
-  const [resultAvailable, setResultAvailable] = useState(false);
-  const [processedResults, setProcessedResults] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const { searchResults, loadingFlag } = searchAPI(searchQuery);
+
+  const handleSearch = (query) => {
+    if (query.toLowerCase() === "jurong point") {
+      setSearchResults(carParks);
+    } else {
+      setSearchResults([]);
+    }
+  };
 
   const handleFilterSelect = (filters) => {
     setSelectedFilters(filters);
@@ -63,36 +67,11 @@ const Home = () => {
     { label: "4. Sheltered Parking", value: "sheltered_parking" },
   ];
 
-  useEffect(() => {
-    if (searchResults && searchResults.results) {
-      const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      console.log(slicedResults);
-      const processing = slicedResults.map((result) => {
-        const ADDRESS = result.ADDRESS;
-        const LATITUDE = parseFloat(result.LATITUDE);
-        const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = convertWGS84ToSVY21(LATITUDE, LONGITUDE);
-        return {
-          ADDRESS,
-          LONGITUDE,
-          LATITUDE,
-          X,
-          Y,
-        };
-      });
-      console.log(processing);
-      setProcessedResults(processing); // Store processed results in state
-      setResultAvailable(true); // Set result available flag to true
-    } else {
-      setResultAvailable(false); // Set result available flag to false
-    }
-  }, [searchResults]);
-
   return (
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
         <View style={styles.searchBarContainer}>
-          <SearchBar onSearch={setSearchQuery} />
+          <SearchBar onSearch={handleSearch} />
         </View>
 
         <FilterButton
@@ -118,15 +97,23 @@ const Home = () => {
         }} // Singapore
       />
 
-      {resultAvailable && !loadingFlag && (
+      {searchResults.length > 0 && (
         <FlatList
-          data={processedResults} // Use processedResult as data
-          keyExtractor={(item, index) => index.toString()}
+          data={searchResults}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.itemContainer}>
-              <View style={styles.box}>
-                <Text style={styles.carParkAddress}>{item.ADDRESS}</Text>
-              </View>
+            <TouchableOpacity
+              style={styles.carParkItem}
+              onPress={() =>
+                router.push({
+                  pathname: "/viewCarParkDetails",
+                  params: { carPark: JSON.stringify(item) }, // Pass car park details as params
+                })
+              }
+            >
+              <Text style={styles.carParkName}>{item.name}</Text>
+              <Text style={styles.carParkAddress}>{item.address}</Text>
+              <Text style={styles.carParkDistance}>{item.distance}</Text>
             </TouchableOpacity>
           )}
         />
@@ -177,29 +164,15 @@ const styles = StyleSheet.create({
   carParkName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#4B0082",
+    color: "#FFFFFF",
   },
   carParkAddress: {
     fontSize: 14,
-    color: "#4B0082",
+    color: "#CCCCCC",
   },
   carParkDistance: {
     fontSize: 12,
     color: "#00C3FF",
-  },
-  box: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: "#A4D200",
-    borderColor: "#A4D200", // Light border color
-    shadowColor: "#000", // Add shadow for elevated effect
-    shadowOffset: { width: 0, height: 2 }, // Shadow positioning
-    shadowOpacity: 0.1, // Shadow intensity
-    shadowRadius: 4, // Shadow blur
-    elevation: 3, // For Android shadow
-    justifyContent: "center", // Vertically center the content
-    alignItems: "center", // Horizontally center the content
   },
 });
 
