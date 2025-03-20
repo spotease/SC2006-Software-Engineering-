@@ -1,7 +1,9 @@
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import React from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
-export default function searchHistory() {
+export default function SearchHistory() {
   const historyData = [
     {
       date: '28/02/2025',
@@ -23,9 +25,15 @@ export default function searchHistory() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#121212', padding: 16 }}>
+      {/* Back Button */}
+      <TouchableOpacity onPress={() => router.push("(tabs)/history")} style={styles.backButton}>
+        <MaterialIcons name="arrow-back" size={24} color="white" />
+      </TouchableOpacity>
+      
       <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
         History
       </Text>
+      
       <FlatList
         data={historyData}
         keyExtractor={(item) => item.date}
@@ -42,6 +50,7 @@ export default function searchHistory() {
           </View>
         )}
       />
+      
       <TouchableOpacity
         style={{ backgroundColor: '#008080', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 16 }}>
         <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Clear History</Text>
@@ -49,3 +58,9 @@ export default function searchHistory() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  backButton: {
+    marginBottom: 15,
+  }
+});

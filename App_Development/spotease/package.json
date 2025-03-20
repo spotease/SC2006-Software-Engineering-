@@ -14,17 +14,25 @@
   "jest": {
     "preset": "jest-expo"
   },
+  "resolutions": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
-    "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
+    "@react-native-async-storage/async-storage": "^1.x.x",
     "expo": "~52.0.37",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.7",
     "expo-font": "~13.0.4",
     "expo-haptics": "~14.0.1",
+<<<<<<< HEAD
     "expo-image-picker": "^16.0.6",
+=======
+    "expo-image-picker": "~16.0.6",
+>>>>>>> 730eb93c1f0e9d87fb0e3000a61fe5a579cad98c
     "expo-linear-gradient": "^14.0.2",
     "expo-linking": "~7.0.5",
     "expo-location": "~18.0.7",
@@ -34,17 +42,10 @@
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
-    "polyline": "^0.2.0",
-    "proj4": "^2.15.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-native": "0.76.7",
-    "react-native-async-storage": "^0.0.1",
-    "react-native-config": "^1.5.5",
-    "react-native-elements": "^3.4.3",
-    "react-native-geolocation-service": "^5.3.1",
     "react-native-gesture-handler": "~2.20.2",
-    "react-native-maps": "^1.18.0",
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
