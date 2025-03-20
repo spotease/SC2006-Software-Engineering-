@@ -7,14 +7,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from "react-native";
-import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
@@ -108,8 +100,6 @@ const Home = () => {
       });
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
-      setProcessedResults(processing);
-      setResultAvailable(true);
     } else {
       setResultAvailable(false);
     }
@@ -166,7 +156,7 @@ const Home = () => {
               }}
               title={carPark.ADDRESS}
               description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
-              pinColor="red" // Car parks are marked in red
+              pinColor="blue" // Car parks are marked in red
             />
           ))}
       </MapView>
