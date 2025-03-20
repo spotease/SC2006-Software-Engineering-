@@ -4,59 +4,57 @@ import { useRouter } from "expo-router";
 import EntryBox from "../../components/EntryBox";
 import CustomButton from "../../components/CustomButton";
 import logo from '../../assets/images/SpotEaseLogo.png';
+import Config from 'react-native-config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+const API_URL = `https://sc2006-backend-spotease.onrender.com/forgetpassword`;
+console.log(API_URL);
 
 export default function forgetPassword() {
     const router = useRouter();
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [password1, setPassword1] = useState("");
-    const [error, setError] = useState("");
 
-    const handleForgetPassword = () => {
-      //if either fields are empty
-      if (!email.trim() || !password.trim())
-      {
-        Alert.alert("Error","Email and Password cannot be empty. Try again.");
+    const handleForgetPassword = async () => {
+      // Validate empty fields
+      if (!email.trim()) {
+        Alert.alert("Error", "Email cannot be empty. Try again.");
         return;
       }
-      //password does not match
-      if (password != password1){
-        setError("Passwords do not match! Please try again.");
-        Alert.alert("Error","Passwords do not match! Please try again.");
-        setPassword1(""); //clear the input field to allow user to enter password again
-        return;
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+    
+        const data = await response.json();
+    
+        if (response.ok) {
+          Alert.alert("Success", "Check your email for the password reset link.");
+          router.push("/resetpassword");
+        } else {
+          Alert.alert("Error", data.error || "Something went wrong.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        Alert.alert("Error", "Failed to send request. Please try again later.");
       }
-
-      //password matches - return to login page
-      Alert.alert("Success","Password changed successfully.");
-      router.push("/login");
-    }
+    };
 
     return (
     <View style={styles.container}>
       <Image source={logo} style={styles.logo} resizeMode="contain" />
 
-      <Text style={styles.title}>Reset Password</Text>
+      <Text style={styles.title}>Reset Your Password</Text>
 
       <EntryBox
         placeholder = "Email"
         value = {email}
         onChangeText = {setEmail}
         keyboardType = "email-address"
-      />
-
-      <EntryBox
-        placeholder = "Password"
-        value = {password}
-        onChangeText = {setPassword}
-        secureTextEntry
-      />
-
-      <EntryBox
-        placeholder = "Confirm Password"
-        value = {password1}
-        onChangeText = {setPassword1}
-        secureTextEntry
       />
 
       <CustomButton title="Reset Password" onPress={handleForgetPassword} />

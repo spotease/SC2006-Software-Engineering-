@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, FlatList, Text, TouchableOpacity } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import MapView from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import searchAPI from "../../hooks/searchAPI";
 import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 import * as Location from "expo-location";
@@ -18,28 +23,35 @@ const Home = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
 
-  // Get current location when the app loads
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-
-      let loc = await Location.getCurrentPositionAsync({});
-      setLocation({
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
-    })();
-  }, []);
-
   const handleFilterSelect = (filters) => {
     setSelectedFilters(filters);
     console.log("Selected filters:", filters);
+  };
+
+  const handleDestinationPress = (item) => {
+    const markerProperties = {
+      ADDRESS: item.ADDRESS,
+      LATITUDE: item.LATITUDE,
+      LONGITUDE: item.LONGITUDE,
+      X: item.X,
+      Y: item.Y,
+    };
+    setDestMarker(markerProperties);
+    setSearchQuery("");
+    console.log("Destination Selected");
+  };
+
+  const addMarker = (item) => {
+    const newMarker = {
+      id: mapMarkers.length + 1,
+      ADDRESS: item.ADDRESS,
+      LATITUDE: item.LATITUDE,
+      LONGITUDE: item.LONGITUDE,
+      X: item.X,
+      Y: item.Y,
+    };
+
+    setMapMarkers((prevMapMarkers) => [...prevMapMarkers, newMarker]);
   };
 
   const filterOptions = [
@@ -51,7 +63,8 @@ const Home = () => {
 
   useEffect(() => {
     if (searchResults && searchResults.results) {
-      const slicedResults = searchResults.results.slice(0, 5);
+      const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
+      console.log(slicedResults);
       const processing = slicedResults.map((result) => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
@@ -65,8 +78,9 @@ const Home = () => {
           Y,
         };
       });
-      setProcessedResults(processing);
-      setResultAvailable(true);
+      console.log(processing);
+      setProcessedResults(processing); // Store processed results in state
+      setResultAvailable(true); // Set result available flag to true
     } else {
       setResultAvailable(false);
     }
@@ -76,7 +90,7 @@ const Home = () => {
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
         <View style={styles.searchBarContainer}>
-          <SearchBar onSearch={setSearchQuery} />
+          <SearchBar query={searchQuery} onSearch={setSearchQuery} />
         </View>
 
         <FilterButton filterOptions={filterOptions} onFilterSelect={handleFilterSelect}>
@@ -88,37 +102,25 @@ const Home = () => {
 
       <MapView
         style={styles.map}
-        region={
-          location || {
-            latitude: 1.3521, // Default: Singapore if current location is denied 
-            longitude: 103.8198,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-          }
-        }
-        showsUserLocation={true}
-        showsMyLocationButton={true}
-      >
-        {processedResults && processedResults.map((carPark, index) => (
-      <Marker
-        key={index}
-        coordinate={{
-          latitude: carPark.LATITUDE,
-          longitude: carPark.LONGITUDE,
-        }}
-        title={carPark.ADDRESS}
-        description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
-        pinColor="red" // Car parks are marked in red
+        initialRegion={{
+          latitude: 1.3521,
+          longitude: 103.8198,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        }} // Singapore
       />
-    ))}
-      </MapView>
 
       {resultAvailable && !loadingFlag && (
         <FlatList
           data={processedResults}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.itemContainer}>
+            <TouchableOpacity
+              style={styles.itemContainer}
+              onPress={() => {
+                handleDestinationPress(item);
+              }}
+            >
               <View style={styles.box}>
                 <Text style={styles.carParkAddress}>{item.ADDRESS}</Text>
               </View>
