@@ -201,7 +201,7 @@ export default function homeTest() {
       {resultAvailable && !loadingFlag ? (
         <ScrollView style={styles.searchResultsContainer}>
           {/* Display only the first 10 results */}
-          {processedResults.map((result, index) => (
+         /* {processedResults.map((result, index) => (
             <View key={index} style={styles.resultItem}>
               <Text>{result.ADDRESS}</Text>
               <Text>
@@ -262,4 +262,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-});
+}); 

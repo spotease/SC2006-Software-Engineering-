@@ -1,59 +1,45 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from "react-native";
-import MapView from "react-native-maps";
+import { View, StyleSheet, FlatList, Text, TouchableOpacity } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import searchAPI from "../../hooks/searchAPI";
 import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
-const carParks = [
-  {
-    id: 1,
-    name: "The Wave",
-    address: "110 Nanyang Cres, Singapore 636956",
-    distance: "500M",
-    availableLots: 50,
-    parkingRates: "$1.50/hour",
-    googleReview: "4.5/5",
-  },
-  {
-    id: 2,
-    name: "The Hive",
-    address: "52 Nanyang Ave · 6791 1744",
-    distance: "800M",
-    availableLots: 30,
-    parkingRates: "$2.00/hour",
-    googleReview: "4.2/5",
-  },
-  {
-    id: 3,
-    name: "Marina Barrage",
-    address: "8 Marina Gardens Dr, Singapore 018951",
-    distance: "2KM",
-    availableLots: 100,
-    parkingRates: "$1.00/hour",
-    googleReview: "4.7/5",
-  },
-]; // Mock data with details
+import * as Location from "expo-location";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [resultAvailable, setResultAvailable] = useState(false);
   const [processedResults, setProcessedResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
+
+  // Get current location when the app loads
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let loc = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    })();
+  }, []);
 
   const handleFilterSelect = (filters) => {
     setSelectedFilters(filters);
     console.log("Selected filters:", filters);
-    // filter logic here
   };
 
   const filterOptions = [
@@ -65,8 +51,7 @@ const Home = () => {
 
   useEffect(() => {
     if (searchResults && searchResults.results) {
-      const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      console.log(slicedResults);
+      const slicedResults = searchResults.results.slice(0, 5);
       const processing = slicedResults.map((result) => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
@@ -80,11 +65,10 @@ const Home = () => {
           Y,
         };
       });
-      console.log(processing);
-      setProcessedResults(processing); // Store processed results in state
-      setResultAvailable(true); // Set result available flag to true
+      setProcessedResults(processing);
+      setResultAvailable(true);
     } else {
-      setResultAvailable(false); // Set result available flag to false
+      setResultAvailable(false);
     }
   }, [searchResults]);
 
@@ -95,14 +79,8 @@ const Home = () => {
           <SearchBar onSearch={setSearchQuery} />
         </View>
 
-        <FilterButton
-          filterOptions={filterOptions}
-          onFilterSelect={handleFilterSelect}
-        >
-          <TouchableOpacity
-            style={styles.filterIconContainer}
-            onPress={() => {}}
-          >
+        <FilterButton filterOptions={filterOptions} onFilterSelect={handleFilterSelect}>
+          <TouchableOpacity style={styles.filterIconContainer} onPress={() => {}}>
             <Ionicons name="filter" size={20} color="#00C3FF" />
           </TouchableOpacity>
         </FilterButton>
@@ -110,17 +88,34 @@ const Home = () => {
 
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: 1.3521,
-          longitude: 103.8198,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        }} // Singapore
+        region={
+          location || {
+            latitude: 1.3521, // Default: Singapore if current location is denied 
+            longitude: 103.8198,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          }
+        }
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+      >
+        {processedResults && processedResults.map((carPark, index) => (
+      <Marker
+        key={index}
+        coordinate={{
+          latitude: carPark.LATITUDE,
+          longitude: carPark.LONGITUDE,
+        }}
+        title={carPark.ADDRESS}
+        description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
+        pinColor="red" // Car parks are marked in red
       />
+    ))}
+      </MapView>
 
       {resultAvailable && !loadingFlag && (
         <FlatList
-          data={processedResults} // Use processedResult as data
+          data={processedResults}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.itemContainer}>
@@ -174,32 +169,23 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 10,
   },
-  carParkName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#4B0082",
-  },
   carParkAddress: {
     fontSize: 14,
     color: "#4B0082",
-  },
-  carParkDistance: {
-    fontSize: 12,
-    color: "#00C3FF",
   },
   box: {
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
     backgroundColor: "#A4D200",
-    borderColor: "#A4D200", // Light border color
-    shadowColor: "#000", // Add shadow for elevated effect
-    shadowOffset: { width: 0, height: 2 }, // Shadow positioning
-    shadowOpacity: 0.1, // Shadow intensity
-    shadowRadius: 4, // Shadow blur
-    elevation: 3, // For Android shadow
-    justifyContent: "center", // Vertically center the content
-    alignItems: "center", // Horizontally center the content
+    borderColor: "#A4D200",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+/* import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -174,6 +174,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#00C3FF",
   },
-});
+}); 
 
-export default Home;
+export default Home; */
