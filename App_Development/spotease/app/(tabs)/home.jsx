@@ -136,18 +136,31 @@ const Home = () => {
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
-        {processedResults && processedResults.map((carPark, index) => (
-      <Marker
-        key={index}
-        coordinate={{
-          latitude: carPark.LATITUDE,
-          longitude: carPark.LONGITUDE,
-        }}
-        title={carPark.ADDRESS}
-        description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
-        pinColor="red" // Car parks are marked in red
-      />
-    ))}
+        {/*Destination Marker*/}
+        {destMarker.LATITUDE && destMarker.LONGITUDE && (
+          <Marker
+            coordinate={{
+              latitude: destMarker.LATITUDE,
+              longitude: destMarker.LONGITUDE,
+            }}
+          ></Marker>
+        )}
+        {/* You can customize the marker */}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        {processedResults &&
+          processedResults.map((carPark, index) => (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: carPark.LATITUDE,
+                longitude: carPark.LONGITUDE,
+              }}
+              title={carPark.ADDRESS}
+              description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
+              pinColor="blue" // Car parks are marked in red
+            />
+          ))}
       </MapView>
 
       {resultAvailable && !loadingFlag && (
