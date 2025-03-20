@@ -7,54 +7,54 @@ import {
   TouchableOpacity,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
 import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
-const carParks = [
-  {
-    id: 1,
-    name: "The Wave",
-    address: "110 Nanyang Cres, Singapore 636956",
-    distance: "500M",
-    availableLots: 50,
-    parkingRates: "$1.50/hour",
-    googleReview: "4.5/5",
-  },
-  {
-    id: 2,
-    name: "The Hive",
-    address: "52 Nanyang Ave · 6791 1744",
-    distance: "800M",
-    availableLots: 30,
-    parkingRates: "$2.00/hour",
-    googleReview: "4.2/5",
-  },
-  {
-    id: 3,
-    name: "Marina Barrage",
-    address: "8 Marina Gardens Dr, Singapore 018951",
-    distance: "2KM",
-    availableLots: 100,
-    parkingRates: "$1.00/hour",
-    googleReview: "4.7/5",
-  },
-]; // Mock data with details
+import * as Location from "expo-location";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [resultAvailable, setResultAvailable] = useState(false);
   const [processedResults, setProcessedResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
 
+  // Get current location when the app loads
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let loc = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    })();
+  }, []);
+
   const handleFilterSelect = (filters) => {
     setSelectedFilters(filters);
     console.log("Selected filters:", filters);
-    // filter logic here
   };
 
   const handleDestinationPress = (item) => {
@@ -108,8 +108,10 @@ const Home = () => {
       });
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
+      setProcessedResults(processing);
+      setResultAvailable(true);
     } else {
-      setResultAvailable(false); // Set result available flag to false
+      setResultAvailable(false);
     }
   }, [searchResults]);
 
@@ -152,11 +154,26 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        {processedResults &&
+          processedResults.map((carPark, index) => (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: carPark.LATITUDE,
+                longitude: carPark.LONGITUDE,
+              }}
+              title={carPark.ADDRESS}
+              description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
+              pinColor="red" // Car parks are marked in red
+            />
+          ))}
       </MapView>
 
       {resultAvailable && !loadingFlag && (
         <FlatList
-          data={processedResults} // Use processedResult as data
+          data={processedResults}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -215,32 +232,23 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 10,
   },
-  carParkName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#4B0082",
-  },
   carParkAddress: {
     fontSize: 14,
     color: "#4B0082",
-  },
-  carParkDistance: {
-    fontSize: 12,
-    color: "#00C3FF",
   },
   box: {
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
     backgroundColor: "#A4D200",
-    borderColor: "#A4D200", // Light border color
-    shadowColor: "#000", // Add shadow for elevated effect
-    shadowOffset: { width: 0, height: 2 }, // Shadow positioning
-    shadowOpacity: 0.1, // Shadow intensity
-    shadowRadius: 4, // Shadow blur
-    elevation: 3, // For Android shadow
-    justifyContent: "center", // Vertically center the content
-    alignItems: "center", // Horizontally center the content
+    borderColor: "#A4D200",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
