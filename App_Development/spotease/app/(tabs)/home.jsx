@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { View, StyleSheet, FlatList, Text, TouchableOpacity } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import {
   View,
   StyleSheet,
@@ -6,7 +8,7 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,6 +24,27 @@ const Home = () => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
+  const [mapMarkers, setMapMarkers] = useState([]);
+  const [destMarker, setDestMarker] = useState({});
+
+  // Get current location when the app loads
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        return;
+      }
+
+      let loc = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+    })();
+  }, []);
 
   const handleFilterSelect = (filters) => {
     setSelectedFilters(filters);
@@ -64,7 +87,6 @@ const Home = () => {
   useEffect(() => {
     if (searchResults && searchResults.results) {
       const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      console.log(slicedResults);
       const processing = slicedResults.map((result) => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
@@ -78,7 +100,8 @@ const Home = () => {
           Y,
         };
       });
-      console.log(processing);
+      setProcessedResults(processing);
+      setResultAvailable(true);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
     } else {
@@ -102,13 +125,30 @@ const Home = () => {
 
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: 1.3521,
-          longitude: 103.8198,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        }} // Singapore
+        region={
+          location || {
+            latitude: 1.3521, // Default: Singapore if current location is denied 
+            longitude: 103.8198,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          }
+        }
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+      >
+        {processedResults && processedResults.map((carPark, index) => (
+      <Marker
+        key={index}
+        coordinate={{
+          latitude: carPark.LATITUDE,
+          longitude: carPark.LONGITUDE,
+        }}
+        title={carPark.ADDRESS}
+        description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
+        pinColor="red" // Car parks are marked in red
       />
+    ))}
+      </MapView>
 
       {resultAvailable && !loadingFlag && (
         <FlatList
