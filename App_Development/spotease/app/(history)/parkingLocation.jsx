@@ -84,6 +84,24 @@ const ParkingLocation = () => {
     }
   };
 
+  const clearSavedLocation = async () => {
+    try {
+      // Remove saved data from AsyncStorage
+      await AsyncStorage.removeItem('parkingImage');
+      await AsyncStorage.removeItem('parkingDescription');
+      
+      // Clear the state
+      setSavedImage(null);
+      setSavedDescription('');
+      setShowSaved(false);
+      
+      Alert.alert('Success', 'Saved parking location cleared!');
+    } catch (error) {
+      console.error('Error clearing saved location:', error);
+      Alert.alert('Error', 'Failed to clear saved parking location');
+    }
+  };
+
   const toggleSavedView = () => {
     setShowSaved(!showSaved);
   };
@@ -100,11 +118,16 @@ const ParkingLocation = () => {
       {/* Saved Location Section */}
       <Text style={styles.subHeader}>Saved Parking Location</Text>
       {savedImage ? (
-        <TouchableOpacity style={styles.viewPictureButton} onPress={toggleSavedView}>
-          <Text style={styles.viewPictureText}>
-            {showSaved ? "Hide Saved Picture" : "View Saved Picture"}
-          </Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.viewPictureButton} onPress={toggleSavedView}>
+            <Text style={styles.viewPictureText}>
+              {showSaved ? "Hide Saved Picture" : "View Saved Picture"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.clearButton} onPress={clearSavedLocation}>
+            <Text style={styles.clearButtonText}>Clear Saved Location</Text>
+          </TouchableOpacity>
+        </>
       ) : (
         <Text style={styles.noSavedText}>No saved parking location</Text>
       )}
@@ -167,6 +190,7 @@ const styles = StyleSheet.create({
   },
   viewPictureButton: {
     marginTop: 10,
+  marginBottom: 10,
   },
   viewPictureText: {
     color: '#1E90FF',
@@ -231,6 +255,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  clearButton: {
+    backgroundColor: '#FF4500',
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  clearButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
