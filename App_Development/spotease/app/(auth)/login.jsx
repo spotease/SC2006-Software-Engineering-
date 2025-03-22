@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
-const API_URL = `https://sc2006-backend-spotease.onrender.com/login`;
+const API_URL = `https://sc2006-backend-spotease.onrender.com/auth/login`;
 console.log(API_URL);
 
 export default function Login() {

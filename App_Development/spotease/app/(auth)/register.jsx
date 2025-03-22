@@ -14,7 +14,7 @@ export default function Register() {
     const [password1, setPassword1] = useState("");
     const [error, setError] = useState("");
 
-    const API_URL = `https://sc2006-backend-spotease.onrender.com/register`; // ✅ Correct API endpoint
+    const API_URL = `https://sc2006-backend-spotease.onrender.com/auth/register`; // ✅ Correct API endpoint
     console.log(API_URL);
     
     const handleRegister = async () => {
