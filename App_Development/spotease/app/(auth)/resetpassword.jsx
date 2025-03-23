@@ -70,18 +70,21 @@ export default function ResetPassword() {
         return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     };
 
+    const expiryMessage = () =>{
+        if (isExpired){
+            return message = "OTP has expired. Please request a new one.";
+        }
+        else {
+            return message = `OTP expires in: ${formatTime(countdown)}`;
+        }
+    }
+
     return (
         <View style={styles.container}>
             <Image source={logo} style={styles.logo} resizeMode="contain" />
             <Text style={styles.title}>Reset Your Password</Text>
 
-            <Text style={styles.timer}>
-                OTP expires in: {formatTime(countdown)}
-            </Text>
-
-            {isExpired && (
-              <Text style={styles.expiredText}>OTP has expired. Please request a new one.</Text>
-            )}
+            <Text style={styles.timer}>{expiryMessage()}</Text>
 
             <EntryBox
                 placeholder="OTP"
