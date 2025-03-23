@@ -10,6 +10,7 @@ import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios"; // Import axios for API requests
 import searchAPI from "../../hooks/searchAPI";
 import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 import * as Location from "expo-location";
@@ -24,6 +25,7 @@ const Home = () => {
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
+  const userId = "user123"; // You can fetch this from user authentication data
 
   // Get current location when the app loads
   useEffect(() => {
@@ -49,7 +51,7 @@ const Home = () => {
     console.log("Selected filters:", filters);
   };
 
-  const handleDestinationPress = (item) => {
+  const handleDestinationPress = async (item) => {
     const markerProperties = {
       ADDRESS: item.ADDRESS,
       LATITUDE: item.LATITUDE,
@@ -60,6 +62,22 @@ const Home = () => {
     setDestMarker(markerProperties);
     setSearchQuery("");
     console.log("Destination Selected");
+
+    // Save the selected destination to the backend
+    try {
+      const response = await axios.post("http://sc2006-backend-spotease.onrender.com/auth/save-location", {
+        userId: userId,
+        coordinates: {
+          latitude: item.LATITUDE,
+          longitude: item.LONGITUDE,
+        },
+        locationName: item.ADDRESS,
+        locationType: "Car Park", // You can change this based on your item type
+      });
+      console.log("Location saved:", response.data);
+    } catch (error) {
+      console.error("Error saving location:", error);
+    }
   };
 
   const addMarker = (item) => {
