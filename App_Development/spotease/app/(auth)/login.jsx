@@ -11,14 +11,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
-const API_URL = `https://sc2006-backend-spotease.onrender.com/login`;
+const API_URL = `https://sc2006-backend-spotease.onrender.com/auth/login`; // ✅ Correct API endpoint
+;
 console.log(API_URL);
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  console.log("Email:", email, "Password:", password);
 
+  const [loading, setLoading] = useState(false);
   const handleLogin  = async() => {
     //if either fields are empty
     if (!email.trim() || !password.trim())
@@ -27,13 +30,15 @@ export default function Login() {
       return;
     }
 
+    setLoading(true); // Start loading indicator
     try{
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
+      console.log("Email:", email, "Password:", password);
+      console.log("API Response:", response);
       const text = await response.text();
       console.log("Raw API response:", text);
 
@@ -58,6 +63,8 @@ export default function Login() {
     catch(error){
       console.error("Fetch error:", error);
       Alert.alert("Error","Internal Server Error");
+    } finally {
+      setLoading(false); // Stop loading
     }
   }
   return (
