@@ -6,23 +6,37 @@ require('dotenv').config(); // Load environment variables from .env file
 
 const app = express();
 app.use(express.json()); // Enable JSON parsing
-app.use(cors()); // Enable CORS
 
-//const mongoUrl = process.env.MONGO_Auth_URL; // Load MongoDB URL from environment variables
-const mongoURI = 'mongodb+srv://:@clustername.mongodb.net/?retryWrites=true&w=majority';
+// ✅ Configure CORS for better security
+app.use(
+  cors({
+    origin: "*", // Change "*" to your frontend URL for security
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+  })
+);
 
-mongoose.connect(mongoURI).then(() => {
-  console.log('Connected to MongoDB');
-}).catch((err) => {
-  console.log('Error:', err);
-});
+const mongoUrl = process.env.MONGO_Auth_URL; // Load MongoDB URL from environment variables
+//const mongoURI = 'mongodb+srv://<db_username>:<db_password>@spoteasecluster0.fhyd7.mongodb.net/?retryWrites=true&w=majority&appName=SpotEaseCluster0';
+
+// ✅ Connect to MongoDB with error handling
+mongoose
+  .connect(mongoUrl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ Connected to MongoDB"))
+  .catch((err) => {
+    console.error("❌ MongoDB Connection Error:", err);
+    process.exit(1); // Stop server if DB fails to connect
+  });
 
 // Require schema models
 require('./UserDetails');
 require('./LocationDetails'); // Add this line to include the Location schema
 
 const User = mongoose.model('UserInfo');
-const Location = mongoose.model('LocationHistory'); // Add this line for the Location model
+const Location = mongoose.model('LocationDetails'); // Add this line for the Location model
 
 app.get('/', (req, res) => {
   res.send({ status: "started" });
@@ -34,6 +48,8 @@ app.listen(5001, () => {
 
 app.post('/register', async (req, res) => {
   const { email, password } = req.body;
+  print("email>" + email +"<")
+  print("password>" + password +"<");
   const oldUser = await User.findOne({ email: email });
   if (oldUser) {
     return res.send({ data: "User already exists" });
@@ -47,6 +63,45 @@ app.post('/register', async (req, res) => {
     res.send({ status: "User registered" });
   } catch (error) {
     res.send({ status: "Error", data: error });
+  }
+});
+
+// Add a login endpoint
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Find user by email
+    const user = await User.findOne({ email: email });
+    
+    if (!user) {
+      return res.status(401).json({ 
+        status: 'error', 
+        message: 'Invalid email or password' 
+      });
+    }
+    
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    
+    if (!isPasswordValid) {
+      return res.status(401).json({ 
+        status: 'error', 
+        message: 'Invalid email or password' 
+      });
+    }
+    
+    // Return success with user ID
+    res.json({ 
+      status: 'success', 
+      userId: user._id.toString() 
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      status: 'error', 
+      message: 'Server error, please try again' 
+    });
   }
 });
 
