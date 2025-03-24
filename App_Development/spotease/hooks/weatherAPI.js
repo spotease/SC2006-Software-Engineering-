@@ -20,12 +20,12 @@ const WeatherAPI = ({ userInput }) => {
 
         // Find forecast for the user-input area (case-insensitive match)
         const match = forecasts.find(forecastResult =>
-          forecastResult.area.toLowerCase().includes(userInput.trim().toLowerCase())
+          forecastResult.area.toLowerCase().includes(userInput.toLowerCase())
         );
 
         if (match) {
           setForecast(match);
-          console.log(`Forecast for ${match.area}: ${match.forecastResult}`);
+          console.log(`Forecast for ${match.area}: ${match.forecast}`);
         } else {
           setForecast(null);
           console.log("No matching forecast found.");
@@ -66,3 +66,29 @@ const styles = StyleSheet.create({
 });
 
 export default WeatherAPI;
+
+
+// Possible values for forecast include:
+// Fair
+// Fair (Day)
+// Fair (Night)
+// Fair and Warm
+// Partly Cloudy
+// Partly Cloudy (Day)
+// Partly Cloudy (Night)
+// Cloudy
+// Hazy
+// Slightly Hazy
+// Windy
+// Mist
+// Fog
+// Light Rain
+// Moderate Rain
+// Heavy Rain
+// Passing Showers
+// Light Showers
+// Showers
+// Heavy Showers
+// Thundery Showers
+// Heavy Thundery Showers
+// Heavy Thundery Showers with Gusty Winds
