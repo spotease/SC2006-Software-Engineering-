@@ -1,97 +1,121 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Alert, Image, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import EntryBox from "../../components/EntryBox";
 import CustomButton from "../../components/CustomButton";
 import logo from '../../assets/images/SpotEaseLogo.png';
-import Config from 'react-native-config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const API_URL = `https://sc2006-backend-spotease.onrender.com/password/resetpassword`;
 
-const API_URL = `https://sc2006-backend-spotease.onrender.com/resetpassword`;
-console.log(API_URL);
-
-export default function resetPassword() {
+export default function ResetPassword() {
     const router = useRouter();
     const [OTP, setOTP] = useState("");
     const [password, setPassword] = useState("");
     const [password1, setPassword1] = useState("");
     const [error, setError] = useState("");
+    const [countdown, setCountdown] = useState(60); 
+    const [isExpired, setIsExpired] = useState(false);
+
+    // Countdown Timer Logic
+    useEffect(() => {
+        if (countdown > 0) {
+            const timer = setInterval(() => {
+                setCountdown(prevTime => prevTime - 1);
+            }, 1000);
+            return () => clearInterval(timer); // Cleanup on unmount
+        } else {
+            setIsExpired(true); // Mark OTP as expired
+        }
+    }, [countdown]);
 
     const handleResetPassword = async () => {
-      // Validate empty fields
-      if (!OTP.trim() || !password.trim() || !password1.trim()) {
-        Alert.alert("Error", "All fields are required. Try again.");
-        return;
-      }
-      
-      // Check if passwords match
-      if (password !== password1) {
-        setError("Passwords do not match! Please try again.");
-        Alert.alert("Error", "Passwords do not match! Please try again.");
-        setPassword1(""); // Clear input for user
-        return;
-      }
-    
-      try {
-        const resetResponse = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ OTP, password }),
-        });
-    
-        // Check if the response is okay (status code 200)
-        if (!resetResponse.ok) {
-          const errorData = await resetResponse.json();
-          Alert.alert("Error", errorData.error || "An error occurred while resetting the password.");
-          return;
+        if (!OTP.trim() || !password.trim() || !password1.trim()) {
+            Alert.alert("Error", "All fields are required. Try again.");
+            return;
         }
-    
-        // Parse the success response
-        const data = await resetResponse.json();
-        Alert.alert("Success", data.message || "Password reset successfully!");
-        router.push("/login"); // Redirect to login page
-      } catch (error) {
-        console.error("Error resetting password:", error);
-        Alert.alert("Error", "Internal Server Error");
-      }
+
+        if (password !== password1) {
+            setError("Passwords do not match! Please try again.");
+            Alert.alert("Error", "Passwords do not match! Please try again.");
+            setPassword1("");
+            return;
+        }
+
+        try {
+            const resetResponse = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ OTP, password }),
+            });
+
+            if (!resetResponse.ok) {
+                const errorData = await resetResponse.json();
+                Alert.alert("Error", errorData.error || "An error occurred while resetting the password.");
+                return;
+            }
+
+            const data = await resetResponse.json();
+            Alert.alert("Success", data.message || "Password reset successfully!");
+            router.push("/login");
+        } catch (error) {
+            console.error("Error resetting password:", error);
+            Alert.alert("Error", "Internal Server Error");
+        }
     };
 
+    // Format countdown time (mm:ss)
+    const formatTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    };
+
+    const expiryMessage = () =>{
+        if (isExpired){
+            return message = "OTP has expired. Please request a new one.";
+        }
+        else {
+            return message = `OTP expires in: ${formatTime(countdown)}`;
+        }
+    }
+
     return (
-    <View style={styles.container}>
-      <Image source={logo} style={styles.logo} resizeMode="contain" />
+        <View style={styles.container}>
+            <Image source={logo} style={styles.logo} resizeMode="contain" />
+            <Text style={styles.title}>Reset Your Password</Text>
 
-      <Text style={styles.title}>Reset Your Password</Text>
+            <Text style={styles.timer}>{expiryMessage()}</Text>
 
-      <EntryBox
-        placeholder = "OTP"
-        value = {OTP}
-        keyboardType = "numeric"
-        onChangeText = {setOTP}
-      />
+            <EntryBox
+                placeholder="OTP"
+                value={OTP}
+                keyboardType="numeric"
+                onChangeText={setOTP}
+            />
 
-      <EntryBox
-        placeholder = "Password"
-        value = {password}
-        onChangeText = {setPassword}
-        secureTextEntry
-      />
+            <EntryBox
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+            />
 
-      <EntryBox
-        placeholder = "Confirm Password"
-        value = {password1}
-        onChangeText = {setPassword1}
-        secureTextEntry
-      />
+            <EntryBox
+                placeholder="Confirm Password"
+                value={password1}
+                onChangeText={setPassword1}
+                secureTextEntry
+            />
 
-      <CustomButton title="Reset Password" onPress={handleResetPassword} />
-    </View>
-  )
+            <CustomButton title="Reset Password" onPress={handleResetPassword} disabled={isExpired} />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor:"#2E2E2E",flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
-  title: { fontSize: 24, fontWeight: "bold", color: "#00E6E6", marginBottom: 20 },
-  buttonText: { color: "#FFF", fontWeight: "bold" },
-  logo: {width: 400, height: 200, marginBottom: 15},
+    container: { backgroundColor: "#2E2E2E", flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
+    title: { fontSize: 24, fontWeight: "bold", color: "#00E6E6", marginBottom: 20 },
+    logo: { width: 400, height: 200, marginBottom: 15 },
+    timer: { color: "#FFD700", fontSize: 16, marginVertical: 10 },
+    expiredText: { color: "red", fontSize: 14, marginBottom: 10 },
 });

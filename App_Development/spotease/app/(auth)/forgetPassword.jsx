@@ -8,7 +8,7 @@ import Config from 'react-native-config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const API_URL = `https://sc2006-backend-spotease.onrender.com/forgetpassword`;
+const API_URL = `https://sc2006-backend-spotease.onrender.com/password/forgetpassword`;
 console.log(API_URL);
 
 export default function forgetPassword() {
