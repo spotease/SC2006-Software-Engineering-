@@ -19,13 +19,13 @@ const WeatherAPI = ({ userInput }) => {
         const forecasts = data.items[0].forecasts;
 
         // Find forecast for the user-input area (case-insensitive match)
-        const match = forecasts.find(forecast =>
-          forecast.area.toLowerCase().includes(userInput.trim().toLowerCase())
+        const match = forecasts.find(forecastResult =>
+          forecastResult.area.toLowerCase().includes(userInput.trim().toLowerCase())
         );
 
         if (match) {
           setForecast(match);
-          console.log(`Forecast for ${match.area}: ${match.forecast}`);
+          console.log(`Forecast for ${match.area}: ${match.forecastResult}`);
         } else {
           setForecast(null);
           console.log("No matching forecast found.");
