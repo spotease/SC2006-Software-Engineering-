@@ -4,6 +4,7 @@ import SearchBar from "../../components/SearchBar";
 import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 import calculateDistance from "../../hooks/calculateDistanceXY";
 import searchAPI from "../../hooks/searchAPI";
+import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 export default function homeTest() {
   const [userInput, setUserInput] = useState("");
@@ -153,12 +154,14 @@ export default function homeTest() {
       "Car Park Basement": "N",
     },
   ];
-  const [carParksWithinRadius, setCarpark] = useState(null);
+  const [carParksWithinRadius, setCarParkWithinRadius] = useState(null);
+
+  const { carParks } = carParkRetrieval(processedResults, 200);
 
   useEffect(() => {
     if (searchResults && searchResults.results) {
       const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      console.log(slicedResults);
+      //console.log(slicedResults);
       const processing = slicedResults.map((result) => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
@@ -172,11 +175,15 @@ export default function homeTest() {
             carPark["X Coord"],
             carPark["Y Coord"]
           );
-          console.log(distance);
+          //console.log(distance);
           return distance <= radius;
         });
-        console.log(carParksWithinRadius1);
-        setCarpark(carParksWithinRadius1);
+        //console.log(carParksWithinRadius1);
+        if (carParks) {
+          //console.log("Test1:");
+          //console.log(carParks);
+        }
+        setCarParkWithinRadius(carParksWithinRadius);
 
         return {
           ADDRESS,
@@ -186,7 +193,7 @@ export default function homeTest() {
           Y,
         };
       });
-      console.log(processing);
+      //console.log(processing);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
     } else {
@@ -201,7 +208,7 @@ export default function homeTest() {
       {resultAvailable && !loadingFlag ? (
         <ScrollView style={styles.searchResultsContainer}>
           {/* Display only the first 10 results */}
-         /* {processedResults.map((result, index) => (
+          {processedResults.map((result, index) => (
             <View key={index} style={styles.resultItem}>
               <Text>{result.ADDRESS}</Text>
               <Text>
@@ -211,7 +218,7 @@ export default function homeTest() {
                 X: {result.X} Y: {result.Y}
               </Text>
               <Text>
-                Distance:{" "}
+                Distance:
                 {calculateDistance(
                   result.X,
                   result.Y,
@@ -236,6 +243,7 @@ export default function homeTest() {
       ) : (
         <Text>NIL</Text>
       )}
+      {carParks && <Text>{carParks[0].address}</Text>}
     </View>
   );
 }
@@ -262,4 +270,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-}); 
+});
