@@ -243,7 +243,6 @@ export default function homeTest() {
       ) : (
         <Text>NIL</Text>
       )}
-      {carParks && <Text>{carParks[0].address}</Text>}
     </View>
   );
 }
