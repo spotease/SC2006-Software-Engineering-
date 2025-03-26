@@ -5,12 +5,14 @@ import { useRouter } from "expo-router";
 const carParkRetrieval = (selectedDestination, filterRadius) => {
   //State Variables
   const [carParks, setCarParks] = useState(null);
+  const [readyCPFlag, setReadyCPFlag] = useState(false);
 
   //Variables For Function
   const router = useRouter();
   const [error, setError] = useState("");
   const API_URL = `https://sc2006-backend-spotease.onrender.com/carpark/carParkRetrieval`;
   const handleRetrieval = async () => {
+    setReadyCPFlag(false);
     const x_coord = selectedDestination[0].X;
     const y_coord = selectedDestination[0].Y;
 
@@ -40,22 +42,23 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   };
 
   useEffect(() => {
+    setReadyCPFlag(false);
     if (!selectedDestination) {
       setCarParks(null);
       return;
     }
-    //console.log("Test2:");
-    //console.log(selectedDestination);
     handleRetrieval();
   }, [selectedDestination]);
 
   useEffect(() => {
+    setReadyCPFlag(false);
     if (carParks) {
       console.log("Car Parks have been updated:", carParks);
+      setReadyCPFlag(true);
     }
   }, [carParks]);
 
-  return { carParks };
+  return { carParks, readyCPFlag };
 };
 
 export default carParkRetrieval;
