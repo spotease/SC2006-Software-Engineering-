@@ -155,8 +155,7 @@ export default function homeTest() {
     },
   ];
   const [carParksWithinRadius, setCarParkWithinRadius] = useState(null);
-
-  const { carParks } = carParkRetrieval(processedResults, 200);
+  const { carParks, readyCPFlag } = carParkRetrieval(processedResults, 200);
 
   useEffect(() => {
     if (searchResults && searchResults.results) {
@@ -180,8 +179,8 @@ export default function homeTest() {
         });
         //console.log(carParksWithinRadius1);
         if (carParks) {
-          //console.log("Test1:");
-          //console.log(carParks);
+          console.log("Test1:");
+          console.log(carParks);
         }
         setCarParkWithinRadius(carParksWithinRadius);
 
@@ -242,6 +241,11 @@ export default function homeTest() {
         ))
       ) : (
         <Text>NIL</Text>
+      )}
+      {readyCPFlag && carParks[0] ? (
+        <Text>{carParks[0].address}</Text>
+      ) : (
+        <Text>False</Text>
       )}
     </View>
   );
