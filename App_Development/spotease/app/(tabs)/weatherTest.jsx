@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import SearchBar from '../../components/SearchBar';
 import WeatherAPI from '../../hooks/weatherAPI';
+import ConvertPostalToRegion from '../../hooks/convertPostalToRegion';
 
 const WeatherTest = () => {
   const [userInput, setUserInput] = useState("");
+
+  // Call ConvertPostalToRegion function properly
+  const { region, postalCode } = ConvertPostalToRegion({ userInput });
 
   const handleSearch = (input) => {
     setUserInput(input);
@@ -13,7 +17,7 @@ const WeatherTest = () => {
   return (
     <View style={styles.container}>
       <SearchBar query={userInput} onSearch={handleSearch} />
-      <WeatherAPI userInput={userInput} />
+      <WeatherAPI userInput={region} /> 
     </View>
   );
 };
