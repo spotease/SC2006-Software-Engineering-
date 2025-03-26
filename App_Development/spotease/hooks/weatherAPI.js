@@ -16,10 +16,10 @@ const WeatherAPI = ({ userInput }) => {
         const data = await response.json();
 
         // Extract forecasts
-        const forecasts = data.items[0].forecasts;
+        const forecastData = data.items[0].forecasts;
 
         // Find forecast for the user-input area (case-insensitive match)
-        const match = forecasts.find(forecastResult =>
+        const match = forecastData.find(forecastResult =>
           forecastResult.area.toLowerCase().includes(userInput.toLowerCase())
         );
 
