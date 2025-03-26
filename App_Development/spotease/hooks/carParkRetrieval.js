@@ -54,7 +54,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
 
   useEffect(() => {
     if (carParks) {
-      console.log(carParks);
+      //console.log(carParks);
       setReadyCPFlag(true);
     }
   }, [carParks]);
