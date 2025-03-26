@@ -11,7 +11,7 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
-import WGS84ToSVY21 from "../../hooks/ConvertCoords";
+import ConvertCoords from "../../hooks/ConvertCoords";
 import * as Location from "expo-location";
 import carParkRetrieval from "../../hooks/carParkRetrieval";
 
@@ -107,7 +107,7 @@ const Home = () => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
         const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = convertWGS84ToSVY21(LATITUDE, LONGITUDE);
+        const [X, Y] = ConvertCoords.WGS84ToSVY21(LATITUDE, LONGITUDE);
         return {
           ADDRESS,
           LONGITUDE,
