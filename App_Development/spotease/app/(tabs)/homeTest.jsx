@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import SearchBar from "../../components/SearchBar";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
+import ConvertCoords from "../../hooks/ConvertCoords";
 import calculateDistance from "../../hooks/calculateDistanceXY";
 import searchAPI from "../../hooks/searchAPI";
 import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 export default function homeTest() {
   const [userInput, setUserInput] = useState("");
-  const [processedResults, setProcessedResults] = useState(null);
+  const [processedResults, setProcessedResults] = useState([]);
   const [resultAvailable, setResultAvailable] = useState(false);
   const { searchResults, loadingFlag } = searchAPI(userInput);
 
@@ -155,7 +155,7 @@ export default function homeTest() {
     },
   ];
   const [carParksWithinRadius, setCarParkWithinRadius] = useState(null);
-  const { carParks, readyCPFlag } = carParkRetrieval(processedResults, 200);
+  const { carParks, readyCPFlag } = carParkRetrieval(processedResults[0], 200);
 
   useEffect(() => {
     if (searchResults && searchResults.results) {
@@ -165,7 +165,9 @@ export default function homeTest() {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
         const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = convertWGS84ToSVY21(LATITUDE, LONGITUDE);
+        const [X, Y] = ConvertCoords.WGS84ToSVY21(LATITUDE, LONGITUDE);
+        const [testLat, testLog] = ConvertCoords.SVY21ToWGS84(X, Y);
+        console.log(testLat, testLog);
         const radius = 500;
         carParksWithinRadius1 = carParkData.filter((carPark) => {
           const distance = calculateDistance(
@@ -177,11 +179,6 @@ export default function homeTest() {
           //console.log(distance);
           return distance <= radius;
         });
-        //console.log(carParksWithinRadius1);
-        if (carParks) {
-          console.log("Test1:");
-          console.log(carParks);
-        }
         setCarParkWithinRadius(carParksWithinRadius);
 
         return {

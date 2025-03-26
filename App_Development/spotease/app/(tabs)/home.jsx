@@ -11,8 +11,9 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
+import WGS84ToSVY21 from "../../hooks/ConvertCoords";
 import * as Location from "expo-location";
+import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
@@ -21,6 +22,14 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState({});
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
+
+  const [selectedDest, setSelectedDest] = useState(null);
+  const [filterRadius, setFilterRadius] = useState(0);
+  const { nearbyCarparks, readyCPFlag } = carParkRetrieval(
+    selectedDest,
+    filterRadius
+  );
+
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
 
@@ -56,10 +65,20 @@ const Home = () => {
       X: item.X,
       Y: item.Y,
     };
+    setFilterRadius(200);
     setDestMarker(markerProperties);
+    setSelectedDest(item);
     setSearchQuery("");
     console.log("Destination Selected");
   };
+
+  useEffect(() => {
+    console.log(nearbyCarparks);
+    if (readyCPFlag && nearbyCarparks) {
+      //const sliceCarParks = nearbyCarparks.slice(0, 5);
+      console.log(sliceCarParks);
+    }
+  }, [nearbyCarparks]);
 
   const addMarker = (item) => {
     const newMarker = {
