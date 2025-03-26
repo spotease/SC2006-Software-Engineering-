@@ -5,6 +5,7 @@ import ConvertCoords from "../../hooks/ConvertCoords";
 import calculateDistance from "../../hooks/calculateDistanceXY";
 import searchAPI from "../../hooks/searchAPI";
 import carParkRetrieval from "../../hooks/carParkRetrieval";
+import routingAPI from "../../hooks/routingAPI";
 
 export default function homeTest() {
   const [userInput, setUserInput] = useState("");
@@ -158,8 +159,6 @@ export default function homeTest() {
   const { carParks, readyCPFlag } = carParkRetrieval(processedResults[0], 500);
 
   useEffect(() => {
-    console.log("Test 1:");
-    console.log(carParks);
     if (readyCPFlag && carParks) {
       const processedCarparks = carParks.map((item) => {
         const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
@@ -175,8 +174,6 @@ export default function homeTest() {
           Y: item.y_coord,
         };
       });
-      console.log("Test 2:");
-      console.log(processedCarparks);
     }
   }, [readyCPFlag]);
   useEffect(() => {
@@ -214,6 +211,7 @@ export default function homeTest() {
       //console.log(processing);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
+      routingAPI(processing[0], processing[1]);
     } else {
       setResultAvailable(false); // Set result available flag to false
     }
