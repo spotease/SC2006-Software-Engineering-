@@ -155,8 +155,30 @@ export default function homeTest() {
     },
   ];
   const [carParksWithinRadius, setCarParkWithinRadius] = useState(null);
-  const { carParks, readyCPFlag } = carParkRetrieval(processedResults[0], 200);
+  const { carParks, readyCPFlag } = carParkRetrieval(processedResults[0], 500);
 
+  useEffect(() => {
+    console.log("Test 1:");
+    console.log(carParks);
+    if (readyCPFlag && carParks) {
+      const processedCarparks = carParks.map((item) => {
+        const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
+          item.x_coord,
+          item.y_coord
+        );
+        return {
+          ADDRESS: item.address,
+          CARPARK_NO: item.car_park_no,
+          LATITUDE: cLatitude,
+          LONGITUDE: cLongtitude,
+          X: item.x_coord,
+          Y: item.y_coord,
+        };
+      });
+      console.log("Test 2:");
+      console.log(processedCarparks);
+    }
+  }, [readyCPFlag]);
   useEffect(() => {
     if (searchResults && searchResults.results) {
       const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results

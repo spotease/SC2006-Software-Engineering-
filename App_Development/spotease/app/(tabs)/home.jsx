@@ -25,13 +25,38 @@ const Home = () => {
 
   const [selectedDest, setSelectedDest] = useState(null);
   const [filterRadius, setFilterRadius] = useState(0);
-  const { nearbyCarparks, readyCPFlag } = carParkRetrieval(
+  const { carParks, readyCPFlag } = carParkRetrieval(
     selectedDest,
     filterRadius
   );
 
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
+
+  useEffect(() => {
+    if (readyCPFlag && carParks) {
+      const processedCarparks = carParks.map((item) => {
+        const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
+          item.x_coord,
+          item.y_coord
+        );
+        return {
+          ADDRESS: item.address,
+          CARPARK_NO: item.car_park_no,
+          LATITUDE: cLatitude,
+          LONGITUDE: cLongtitude,
+          X: item.x_coord,
+          Y: item.y_coord,
+        };
+      });
+      console.log("Test 2:");
+      console.log(processedCarparks);
+      processedCarparks.map((item) => {
+        console.log(item);
+        addMarker(item);
+      });
+    }
+  }, [readyCPFlag, carParks]);
 
   // Get current location when the app loads
   useEffect(() => {
@@ -65,20 +90,12 @@ const Home = () => {
       X: item.X,
       Y: item.Y,
     };
-    setFilterRadius(200);
+    setFilterRadius(100);
     setDestMarker(markerProperties);
     setSelectedDest(item);
     setSearchQuery("");
     console.log("Destination Selected");
   };
-
-  useEffect(() => {
-    console.log(nearbyCarparks);
-    if (readyCPFlag && nearbyCarparks) {
-      //const sliceCarParks = nearbyCarparks.slice(0, 5);
-      console.log(sliceCarParks);
-    }
-  }, [nearbyCarparks]);
 
   const addMarker = (item) => {
     const newMarker = {
@@ -116,11 +133,8 @@ const Home = () => {
           Y,
         };
       });
-      setProcessedResults(processing);
-      setResultAvailable(true);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
-      console.log(userLocation.latitude);
     } else {
       setResultAvailable(false);
     }
@@ -157,6 +171,18 @@ const Home = () => {
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
+        {mapMarkers &&
+          mapMarkers.map((marker, index) => (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: marker.LATITUDE,
+                longitude: marker.LONGITUDE,
+              }}
+              title={marker.CARPARK_NO}
+              description={marker.ADDRESS}
+            ></Marker>
+          ))}
         {/*Destination Marker*/}
         {destMarker.LATITUDE && destMarker.LONGITUDE && (
           <Marker
