@@ -25,7 +25,7 @@ const Home = () => {
 
   const [selectedDest, setSelectedDest] = useState(null);
   const [filterRadius, setFilterRadius] = useState(0);
-  const { carParks, readyCPFlag } = carParkRetrieval(
+  const { sortedCarParks, readyCPFlag } = carParkRetrieval(
     selectedDest,
     filterRadius
   );
@@ -34,29 +34,15 @@ const Home = () => {
   const [destMarker, setDestMarker] = useState({});
 
   useEffect(() => {
-    if (readyCPFlag && carParks) {
-      const processedCarparks = carParks.map((item) => {
-        const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
-          item.x_coord,
-          item.y_coord
-        );
-        return {
-          ADDRESS: item.address,
-          CARPARK_NO: item.car_park_no,
-          LATITUDE: cLatitude,
-          LONGITUDE: cLongtitude,
-          X: item.x_coord,
-          Y: item.y_coord,
-        };
-      });
+    if (readyCPFlag && sortedCarParks) {
       console.log("Test 2:");
-      console.log(processedCarparks);
-      processedCarparks.map((item) => {
+      console.log(sortedCarParks);
+      sortedCarParks.map((item) => {
         console.log(item);
         addMarker(item);
       });
     }
-  }, [readyCPFlag, carParks]);
+  }, [readyCPFlag]);
 
   // Get current location when the app loads
   useEffect(() => {
