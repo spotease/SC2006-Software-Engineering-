@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const WeatherAPI = ({ userInput }) => {
+const WeatherAPI = ({userInput}) => {
   const [forecast, setForecast] = useState(null);
 
   useEffect(() => {
@@ -30,6 +30,8 @@ const WeatherAPI = ({ userInput }) => {
           setForecast(null);
           console.log("No matching forecast found.");
         }
+
+        return forecast;
       } catch (error) {
         console.error("Weather API error:", error);
       }
