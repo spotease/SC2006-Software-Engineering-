@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
+import calculateDistance from "./calculateDistanceXY";
+import ConvertCoords from "./ConvertCoords";
 
 const carParkRetrieval = (selectedDestination, filterRadius) => {
   //State Variables
   const [carParks, setCarParks] = useState(null);
+  const [sortedCarParks, setSortedCarParks] = useState(null);
   const [readyCPFlag, setReadyCPFlag] = useState(false);
 
   //Variables For Function
@@ -55,11 +58,43 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   useEffect(() => {
     if (carParks) {
       //console.log(carParks);
+      let processedCarparkData = processData();
+      setSortedCarParks(sortByNearest(processedCarparkData));
+      console.log(sortedCarParks);
       setReadyCPFlag(true);
     }
   }, [carParks]);
 
-  return { carParks, readyCPFlag };
+  /* Function to process and remove unnecessary data */
+  function processData() {
+    processedCarparkData = carParks.map((item) => {
+      const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
+        item.x_coord,
+        item.y_coord
+      );
+      const distanceAway = calculateDistance(
+        selectedDestination.X,
+        selectedDestination.Y,
+        item.x_coord,
+        item.y_coord
+      );
+      return {
+        ADDRESS: item.address,
+        CARPARK_NO: item.car_park_no,
+        CARPARK_TYPE: item.car_park_type,
+        LATITUDE: cLatitude,
+        LONGITUDE: cLongtitude,
+        X: item.x_coord,
+        Y: item.y_coord,
+        DISTANCEAWAY: distanceAway,
+      };
+    });
+    return processedCarparkData;
+  }
+  function sortByNearest(processedCarparkData) {
+    return processedCarparkData.sort((a, b) => a.DISTANCEAWAY - b.DISTANCEAWAY);
+  }
+  return { sortedCarParks, readyCPFlag };
 };
 
 export default carParkRetrieval;
