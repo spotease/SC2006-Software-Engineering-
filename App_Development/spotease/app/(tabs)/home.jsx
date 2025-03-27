@@ -11,8 +11,9 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
+import ConvertCoords from "../../hooks/ConvertCoords";
 import * as Location from "expo-location";
+import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
@@ -21,8 +22,41 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState({});
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
+
+  const [selectedDest, setSelectedDest] = useState(null);
+  const [filterRadius, setFilterRadius] = useState(0);
+  const { carParks, readyCPFlag } = carParkRetrieval(
+    selectedDest,
+    filterRadius
+  );
+
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
+
+  useEffect(() => {
+    if (readyCPFlag && carParks) {
+      const processedCarparks = carParks.map((item) => {
+        const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
+          item.x_coord,
+          item.y_coord
+        );
+        return {
+          ADDRESS: item.address,
+          CARPARK_NO: item.car_park_no,
+          LATITUDE: cLatitude,
+          LONGITUDE: cLongtitude,
+          X: item.x_coord,
+          Y: item.y_coord,
+        };
+      });
+      console.log("Test 2:");
+      console.log(processedCarparks);
+      processedCarparks.map((item) => {
+        console.log(item);
+        addMarker(item);
+      });
+    }
+  }, [readyCPFlag, carParks]);
 
   // Get current location when the app loads
   useEffect(() => {
@@ -56,7 +90,9 @@ const Home = () => {
       X: item.X,
       Y: item.Y,
     };
+    setFilterRadius(100);
     setDestMarker(markerProperties);
+    setSelectedDest(item);
     setSearchQuery("");
     console.log("Destination Selected");
   };
@@ -88,7 +124,7 @@ const Home = () => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
         const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = convertWGS84ToSVY21(LATITUDE, LONGITUDE);
+        const [X, Y] = ConvertCoords.WGS84ToSVY21(LATITUDE, LONGITUDE);
         return {
           ADDRESS,
           LONGITUDE,
@@ -97,11 +133,8 @@ const Home = () => {
           Y,
         };
       });
-      setProcessedResults(processing);
-      setResultAvailable(true);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
-      console.log(userLocation.latitude);
     } else {
       setResultAvailable(false);
     }
@@ -138,6 +171,18 @@ const Home = () => {
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
+        {mapMarkers &&
+          mapMarkers.map((marker, index) => (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: marker.LATITUDE,
+                longitude: marker.LONGITUDE,
+              }}
+              title={marker.CARPARK_NO}
+              description={marker.ADDRESS}
+            ></Marker>
+          ))}
         {/*Destination Marker*/}
         {destMarker.LATITUDE && destMarker.LONGITUDE && (
           <Marker

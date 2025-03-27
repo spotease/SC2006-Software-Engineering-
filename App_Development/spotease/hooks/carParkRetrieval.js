@@ -1,22 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Alert, Image, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Alert } from "react-native";
+import calculateDistance from "./calculateDistanceXY";
+import ConvertCoords from "./ConvertCoords";
 
 const carParkRetrieval = (selectedDestination, filterRadius) => {
   //State Variables
   const [carParks, setCarParks] = useState(null);
+  const [sortedCarParks, setSortedCarParks] = useState(null);
   const [readyCPFlag, setReadyCPFlag] = useState(false);
 
   //Variables For Function
-  const router = useRouter();
-  const [error, setError] = useState("");
   const API_URL = `https://sc2006-backend-spotease.onrender.com/carpark/carParkRetrieval`;
   const handleRetrieval = async () => {
     setReadyCPFlag(false);
-    const x_coord = selectedDestination[0].X;
-    const y_coord = selectedDestination[0].Y;
-
-    setError(""); // Clear previous errors
+    const x_coord = selectedDestination.X;
+    const y_coord = selectedDestination.Y;
     try {
       const response = await fetch(API_URL, {
         method: "POST",
@@ -31,7 +29,6 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
       try {
         data = JSON.parse(text);
         setCarParks(data);
-        //console.log(data);
       } catch (err) {
         throw new Error(`Invalid JSON response: ${text}`);
       }
@@ -47,18 +44,57 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
       setCarParks(null);
       return;
     }
+    console.log("Filter Radius: " + filterRadius);
+    console.log(
+      selectedDestination.ADDRESS +
+        " " +
+        selectedDestination.X +
+        " " +
+        selectedDestination.Y
+    );
     handleRetrieval();
   }, [selectedDestination]);
 
   useEffect(() => {
-    setReadyCPFlag(false);
     if (carParks) {
-      console.log("Car Parks have been updated:", carParks);
+      //console.log(carParks);
+      let processedCarparkData = processData();
+      setSortedCarParks(sortByNearest(processedCarparkData));
+      console.log(sortedCarParks);
       setReadyCPFlag(true);
     }
   }, [carParks]);
 
-  return { carParks, readyCPFlag };
+  /* Function to process and remove unnecessary data */
+  function processData() {
+    processedCarparkData = carParks.map((item) => {
+      const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
+        item.x_coord,
+        item.y_coord
+      );
+      const distanceAway = calculateDistance(
+        selectedDestination.X,
+        selectedDestination.Y,
+        item.x_coord,
+        item.y_coord
+      );
+      return {
+        ADDRESS: item.address,
+        CARPARK_NO: item.car_park_no,
+        CARPARK_TYPE: item.car_park_type,
+        LATITUDE: cLatitude,
+        LONGITUDE: cLongtitude,
+        X: item.x_coord,
+        Y: item.y_coord,
+        DISTANCEAWAY: distanceAway,
+      };
+    });
+    return processedCarparkData;
+  }
+  function sortByNearest(processedCarparkData) {
+    return processedCarparkData.sort((a, b) => a.DISTANCEAWAY - b.DISTANCEAWAY);
+  }
+  return { sortedCarParks, readyCPFlag };
 };
 
 export default carParkRetrieval;
