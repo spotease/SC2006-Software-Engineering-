@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import SearchBar from "../../components/SearchBar";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
+import ConvertCoords from "../../hooks/ConvertCoords";
 import calculateDistance from "../../hooks/calculateDistanceXY";
 import searchAPI from "../../hooks/searchAPI";
+import carParkRetrieval from "../../hooks/carParkRetrieval";
+import routingAPI from "../../hooks/routingAPI";
 
 export default function homeTest() {
   const [userInput, setUserInput] = useState("");
-  const [processedResults, setProcessedResults] = useState(null);
+  const [processedResults, setProcessedResults] = useState([]);
   const [resultAvailable, setResultAvailable] = useState(false);
   const { searchResults, loadingFlag } = searchAPI(userInput);
 
@@ -153,17 +155,38 @@ export default function homeTest() {
       "Car Park Basement": "N",
     },
   ];
-  const [carParksWithinRadius, setCarpark] = useState(null);
+  const [carParksWithinRadius, setCarParkWithinRadius] = useState(null);
+  const { carParks, readyCPFlag } = carParkRetrieval(processedResults[0], 500);
 
+  useEffect(() => {
+    if (readyCPFlag && carParks) {
+      const processedCarparks = carParks.map((item) => {
+        const [cLatitude, cLongtitude] = ConvertCoords.SVY21ToWGS84(
+          item.x_coord,
+          item.y_coord
+        );
+        return {
+          ADDRESS: item.address,
+          CARPARK_NO: item.car_park_no,
+          LATITUDE: cLatitude,
+          LONGITUDE: cLongtitude,
+          X: item.x_coord,
+          Y: item.y_coord,
+        };
+      });
+    }
+  }, [readyCPFlag]);
   useEffect(() => {
     if (searchResults && searchResults.results) {
       const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      console.log(slicedResults);
+      //console.log(slicedResults);
       const processing = slicedResults.map((result) => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
         const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = convertWGS84ToSVY21(LATITUDE, LONGITUDE);
+        const [X, Y] = ConvertCoords.WGS84ToSVY21(LATITUDE, LONGITUDE);
+        const [testLat, testLog] = ConvertCoords.SVY21ToWGS84(X, Y);
+        console.log(testLat, testLog);
         const radius = 500;
         carParksWithinRadius1 = carParkData.filter((carPark) => {
           const distance = calculateDistance(
@@ -172,11 +195,10 @@ export default function homeTest() {
             carPark["X Coord"],
             carPark["Y Coord"]
           );
-          console.log(distance);
+          //console.log(distance);
           return distance <= radius;
         });
-        console.log(carParksWithinRadius1);
-        setCarpark(carParksWithinRadius1);
+        setCarParkWithinRadius(carParksWithinRadius);
 
         return {
           ADDRESS,
@@ -186,9 +208,10 @@ export default function homeTest() {
           Y,
         };
       });
-      console.log(processing);
+      //console.log(processing);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
+      routingAPI(processing[0], processing[1]);
     } else {
       setResultAvailable(false); // Set result available flag to false
     }
@@ -201,7 +224,7 @@ export default function homeTest() {
       {resultAvailable && !loadingFlag ? (
         <ScrollView style={styles.searchResultsContainer}>
           {/* Display only the first 10 results */}
-         /* {processedResults.map((result, index) => (
+          {processedResults.map((result, index) => (
             <View key={index} style={styles.resultItem}>
               <Text>{result.ADDRESS}</Text>
               <Text>
@@ -211,7 +234,7 @@ export default function homeTest() {
                 X: {result.X} Y: {result.Y}
               </Text>
               <Text>
-                Distance:{" "}
+                Distance:
                 {calculateDistance(
                   result.X,
                   result.Y,
@@ -235,6 +258,11 @@ export default function homeTest() {
         ))
       ) : (
         <Text>NIL</Text>
+      )}
+      {readyCPFlag && carParks[0] ? (
+        <Text>{carParks[0].address}</Text>
+      ) : (
+        <Text>False</Text>
       )}
     </View>
   );
@@ -262,4 +290,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-}); 
+});
