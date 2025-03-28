@@ -5,11 +5,37 @@ const carparkType = {
     "outdoor": ["SURFACE CAR PARK","MECHANISED AND SURFACE CAR PARK"],
 }
 
+<<<<<<< HEAD
 const carparkTypeFilter = ({userInputCarParkType})=>{
     for (const buildingType in carparkType){
         if (carparkType[buildingType].includes (userInputCarParkType)) return buildingType; //Indoor & Outdoor
     }
 } 
+=======
+const recommendIndoor = [
+    "Light Rain",
+    "Moderate Rain",
+    "Heavy Rain",
+    "Thundery Showers",
+    "Heavy Thundery Showers",
+    "Heavy Thundery Showers with Gusty Winds"
+];
+
+
+const carparkTypeFilter = (weatherForecastInput, carparkInfo) => {
+    const IndoorRequired = recommendIndoor.includes(weatherForecastInput);
+    const preferredType = IndoorRequired ? "indoor":"outdoor";
+    processedCarparkInfo = carparkInfo.map((item) => {
+        if(carparkType[preferredType].includes(processedCarparkInfo)&&IndoorRequired) 
+            return item;
+
+        return null;
+    })
+
+
+   
+}
+>>>>>>> 8d264ad1fb8fa67fa13012776460051a9f434897
 
 export default carparkTypeFilter;
 
