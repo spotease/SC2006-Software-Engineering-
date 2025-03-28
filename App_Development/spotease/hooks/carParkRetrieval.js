@@ -3,7 +3,9 @@ import { Alert } from "react-native";
 import calculateDistance from "./calculateDistanceXY";
 import ConvertCoords from "./ConvertCoords";
 
-const useCarParkRetrieval = (selectedDestination, filterRadius) => {
+/* Return Values are sortedCarParks, readyCPFlag */
+const carParkRetrieval = (selectedDestination, filterRadius) => {
+  //State Variables
   const [carParks, setCarParks] = useState(null);
   const [sortedCarParks, setSortedCarParks] = useState([]);
   const [readyCPFlag, setReadyCPFlag] = useState(false);
