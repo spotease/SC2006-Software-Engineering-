@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import SearchBar from "../../components/SearchBar";
-import ConvertCoords from "../../hooks/ConvertCoords";
+import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 import calculateDistance from "../../hooks/calculateDistanceXY";
 import searchAPI from "../../hooks/searchAPI";
 import carParkRetrieval from "../../hooks/carParkRetrieval";
@@ -13,7 +13,7 @@ import ConvertPostalToRegion from '../../hooks/convertPostalToRegion';
 
 export default function homeTest() {
   const [userInput, setUserInput] = useState("");
-  const [processedResults, setProcessedResults] = useState([]);
+  const [processedResults, setProcessedResults] = useState(null);
   const [resultAvailable, setResultAvailable] = useState(false);
   const { searchResults, loadingFlag } = searchAPI(userInput);
   const { region } = ConvertPostalToRegion({userInput});
@@ -231,7 +231,7 @@ export default function homeTest() {
       {resultAvailable && !loadingFlag ? (
         <ScrollView style={styles.searchResultsContainer}>
           {/* Display only the first 10 results */}
-          {processedResults.map((result, index) => (
+         /* {processedResults.map((result, index) => (
             <View key={index} style={styles.resultItem}>
               <Text>Testing Region:{region}</Text>
               <Text>Forecast: {forecast}</Text>
@@ -243,7 +243,7 @@ export default function homeTest() {
                 X: {result.X} Y: {result.Y}
               </Text>
               <Text>
-                Distance:
+                Distance:{" "}
                 {calculateDistance(
                   result.X,
                   result.Y,
@@ -318,4 +318,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-});
+}); 
