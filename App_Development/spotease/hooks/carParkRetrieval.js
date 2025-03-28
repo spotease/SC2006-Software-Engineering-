@@ -80,4 +80,4 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   return { sortedCarParks, readyCPFlag };
 };
 
-export default useCarParkRetrieval;
+export default carParkRetrieval;
