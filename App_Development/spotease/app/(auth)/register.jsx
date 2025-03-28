@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Alert, Image, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import EntryBox from "../../components/EntryBox";
 import CustomButton from "../../components/CustomButton";
@@ -25,19 +25,6 @@ export default function Register() {
             return;
         }
 
-        //email must have @.domain.com
-        if (!email.match("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
-            setError("Invalid email format. Please enter a valid email (e.g., example@domain.com).");
-            return;
-        }
-
-        //password must be at least 8 characters long and contain at least one number and one special character
-        if (!password.match("^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$")) {
-            setError("Password must be at least 8 characters long and contain at least one number and one special character.");
-            return;
-        }
-
-        //checks if password and password1 are the same
         if (password !== password1) {
             setError("Passwords do not match! Please try again.");
             return;
@@ -60,7 +47,7 @@ export default function Register() {
                 throw new Error(`Invalid JSON response: ${text}`);
             }
 
-            if (data && data.error === "User already exists") {
+            if (data.data === "User already exists") {
                 setError("User already exists! Try logging in.");
                 return;
             }
@@ -87,12 +74,6 @@ export default function Register() {
             <EntryBox placeholder="Confirm Password" value={password1} onChangeText={setPassword1} secureTextEntry />
 
             <CustomButton title="Register" onPress={handleRegister} />
-
-            {/* return to login page */}
-            <TouchableOpacity style={styles.returnButton} onPress={() => router.push("/login")}>
-                <Text style={styles.returnButtonText}>Return to Login</Text>
-            </TouchableOpacity>
-
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </View>
     );
@@ -102,7 +83,5 @@ const styles = StyleSheet.create({
     container: { backgroundColor: "#2E2E2E", flex: 1, alignItems: "center", justifyContent: "center", padding: 20 },
     title: { fontSize: 24, fontWeight: "bold", color: "#00E6E6", marginBottom: 20 },
     logo: { width: 400, height: 200, marginBottom: 15 },
-    returnButtonText: { color: "#00E6E6", fontSize: 16 },
-    returnButton: { padding: 10, backgroundColor: "#2E2E2E", borderRadius: 5 },
     errorText: { color: "red", marginTop: 10 },
 });

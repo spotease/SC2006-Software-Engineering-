@@ -34,18 +34,6 @@ export default function ResetPassword() {
             return;
         }
 
-        //password must be at least 8 characters long and contain at least one number and one special character
-        if (!password.match("^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,}$")) {
-            setError("Password must be at least 8 characters long and contain at least one number and one special character.");
-            return;
-        }
-
-        //checks if password and password1 are the same
-        if (password !== password1) {
-            setError("Passwords do not match! Please try again.");
-            return;
-        }
-        
         if (password !== password1) {
             setError("Passwords do not match! Please try again.");
             Alert.alert("Error", "Passwords do not match! Please try again.");
@@ -120,8 +108,6 @@ export default function ResetPassword() {
             />
 
             <CustomButton title="Reset Password" onPress={handleResetPassword} disabled={isExpired} />
-
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
         </View>
     );
 }
@@ -132,5 +118,4 @@ const styles = StyleSheet.create({
     logo: { width: 400, height: 200, marginBottom: 15 },
     timer: { color: "#FFD700", fontSize: 16, marginVertical: 10 },
     expiredText: { color: "red", fontSize: 14, marginBottom: 10 },
-    errorText: { color: "red", marginTop: 10 },
 });

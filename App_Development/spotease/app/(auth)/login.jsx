@@ -18,19 +18,12 @@ export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const handleLogin  = async() => {
     //if either fields are empty
     if (!email.trim() || !password.trim())
     {
       Alert.alert("Error","Email and Password cannot be empty. Try again.");
-      return;
-    }
-
-    //email must have @.domain.com
-    if (!email.match("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
-      setError("Invalid email format. Please enter a valid email (e.g., example@domain.com).");
       return;
     }
 
@@ -92,8 +85,6 @@ export default function Login() {
       <CustomButton title="Login" onPress={handleLogin} />
 
       <JustTextButton title="Don't have an account? Register" onPress={() => router.push("/(auth)/register")} />
-
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   );
 }
@@ -103,5 +94,4 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "bold", color: "#00E6E6", marginBottom: 20 },
   buttonText: { color: "#FFF", fontWeight: "bold" },
   logo: {width: 400, height: 200, marginBottom: 15},
-  errorText: { color: "red", marginTop: 10 },
 });
