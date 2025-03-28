@@ -19,8 +19,7 @@ const Home = () => {
   const [resultAvailable, setResultAvailable] = useState(false);
   const [processedResults, setProcessedResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [userLocation, setUserLocation] = useState({});
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
@@ -35,7 +34,7 @@ const Home = () => {
       }
 
       let loc = await Location.getCurrentPositionAsync({});
-      setLocation({
+      setUserLocation({
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
         latitudeDelta: 0.01,
@@ -102,6 +101,7 @@ const Home = () => {
       setResultAvailable(true);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
+      console.log(userLocation.latitude);
     } else {
       setResultAvailable(false);
     }
@@ -129,14 +129,12 @@ const Home = () => {
 
       <MapView
         style={styles.map}
-        region={
-          location || {
-            latitude: 1.3521, // Default: Singapore if current location is denied
-            longitude: 103.8198,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-          }
-        }
+        initialRegion={{
+          latitude: 1.2868108, // Center latitude
+          longitude: 103.8545349, // Center longitude
+          latitudeDelta: 0.05, // Zoom level
+          longitudeDelta: 0.05, // Zoom level
+        }}
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
@@ -149,20 +147,17 @@ const Home = () => {
             }}
           ></Marker>
         )}
-        {/* You can customize the marker */}
-        {processedResults &&
-          processedResults.map((carPark, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: carPark.LATITUDE,
-                longitude: carPark.LONGITUDE,
-              }}
-              title={carPark.ADDRESS}
-              description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
-              pinColor="blue" // Car parks are marked in red
-            />
-          ))}
+        {/*User Location Marker*/}
+        {userLocation.latitude && userLocation.longitude && (
+          <Marker
+            coordinate={{
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+            }}
+            title="Hello"
+            pinColor="white"
+          ></Marker>
+        )}
       </MapView>
 
       {resultAvailable && !loadingFlag && (
