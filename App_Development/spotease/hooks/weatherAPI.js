@@ -24,8 +24,7 @@ const WeatherAPI = ({userInput}) => {
         );
 
         if (match) {
-          setForecast(match);
-          console.log(`Forecast for ${match.area}: ${match.forecast}`);
+          setForecast(match.forecast);
         } else {
           setForecast(null);
           console.log("No matching forecast found.");
@@ -40,32 +39,9 @@ const WeatherAPI = ({userInput}) => {
     fetchWeather();
   }, [userInput]);
 
-  return (
-    <View style={styles.container}>
-      {forecast ? (
-        <Text style={styles.result}>
-          {forecast.area}: {forecast.forecast}
-        </Text>
-      ) : (
-        <Text style={styles.placeholder}>Enter a region name to search forecast</Text>
-      )}
-    </View>
-  );
+  return {forecast};
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-  },
-  result: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  placeholder: {
-    fontSize: 16,
-    color: '#888',
-  },
-});
 
 export default WeatherAPI;
 

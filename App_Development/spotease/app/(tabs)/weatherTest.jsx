@@ -10,8 +10,8 @@ const WeatherTest = () => {
 
   // Call ConvertPostalToRegion function properly
   const {region} = ConvertPostalToRegion({ userInput });
-  const {forecastResult} = WeatherAPI({region});
-  const { buildingTypeResult } = CarparkTypeFilter(forecastResult) || {}; // Handle undefine
+  const {forecast} = WeatherAPI({userInput:region});
+  // const { buildingTypeResult } = CarparkTypeFilter(forecastResult) || {}; // Handle undefine
 
   //forecast result
 
@@ -23,7 +23,10 @@ const WeatherTest = () => {
   return (
     <View style={styles.container}>
       <SearchBar query={userInput} onSearch={handleSearch} />
-      <Text>{buildingTypeResult}</Text>
+      <Text>{region}</Text>
+      <Text>Forecast: {forecast}</Text>
+
+
 
     </View>
   );
