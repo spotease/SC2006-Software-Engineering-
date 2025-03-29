@@ -17,8 +17,6 @@ import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
-  const [resultAvailable, setResultAvailable] = useState(false);
-  const [processedResults, setProcessedResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState({});
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
@@ -103,29 +101,6 @@ const Home = () => {
     { label: "4. Sheltered Parking", value: "sheltered_parking" },
   ];
 
-  useEffect(() => {
-    if (searchResults && searchResults.results) {
-      const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      const processing = slicedResults.map((result) => {
-        const ADDRESS = result.ADDRESS;
-        const LATITUDE = parseFloat(result.LATITUDE);
-        const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = ConvertCoords.WGS84ToSVY21(LATITUDE, LONGITUDE);
-        return {
-          ADDRESS,
-          LONGITUDE,
-          LATITUDE,
-          X,
-          Y,
-        };
-      });
-      setProcessedResults(processing); // Store processed results in state
-      setResultAvailable(true); // Set result available flag to true
-    } else {
-      setResultAvailable(false);
-    }
-  }, [searchResults]);
-
   return (
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
@@ -191,9 +166,9 @@ const Home = () => {
         )}
       </MapView>
 
-      {resultAvailable && !loadingFlag && (
+      {!loadingFlag && (
         <FlatList
-          data={processedResults}
+          data={searchResults}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
