@@ -69,7 +69,6 @@ const searchAPI = (userInput) => {
         };
       });
       setSearchResults(processing); // Store processed results in state
-      console.log("TestSearch Side: ");
       console.log(searchResults);
     } else {
       setSearchResults([]);
