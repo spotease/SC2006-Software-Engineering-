@@ -63,7 +63,6 @@ const postal_mapping = {
 };
 
 const ConvertPostalToRegion = ({ userInput }) => {
-  const [postalCode, setPostalCode] = useState(""); // To store the postal code
   const [region, setRegion] = useState(""); // To store the region
   const { searchResults, loadingFlag } = searchAPI(userInput); // Fetching data with searchAPI hook using userInput
   
@@ -73,8 +72,8 @@ const ConvertPostalToRegion = ({ userInput }) => {
     if (searchResults && searchResults.results && searchResults.results.length > 0) {
       // Assuming you want to take the first result's postal code
       const resultPostalCode = searchResults.results[0].POSTAL;
-      console.log(resultPostalCode);
-      setPostalCode(resultPostalCode);
+      // console.log(resultPostalCode);
+      
       for (const area in postal_mapping){
         const start = Number(postal_mapping[area][0]);
         const end = Number(postal_mapping[area][1]);
@@ -85,7 +84,7 @@ const ConvertPostalToRegion = ({ userInput }) => {
         }
       }
     }
-  }, [userInput]);
+  }, [userInput,searchResults]);
 
   return {region};
 };

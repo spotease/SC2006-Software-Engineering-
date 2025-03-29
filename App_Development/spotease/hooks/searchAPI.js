@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 
 //Custom Hook for fetching search results
-const API_URL = `https://sc2006-backend-spotease.onrender.com/carparkRetrival`; // ✅ Correct API endpoint
-
 const searchAPI = (userInput) => {
   // State variables
   const [searchResults, setSearchResults] = useState(null);
@@ -42,7 +40,7 @@ const searchAPI = (userInput) => {
         }
 
         const data = await response.json();
-        //console.log(data);
+        // console.log(data);
         setSearchResults(data);
       } catch (error) {
         console.error(error);

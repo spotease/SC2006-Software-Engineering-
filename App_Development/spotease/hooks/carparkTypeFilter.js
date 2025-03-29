@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-const carparkType = {
-    "indoor": ["MULTI-STOREY CAR PARK","SURFACE/MULTI- CAR PARK","COVERED CAR PARK","BASEMENT CAR PARKSTOREY","MECHANISED CAR PARK"],
-    "outdoor": ["SURFACE CAR PARK","MECHANISED AND SURFACE CAR PARK"],
-}
+const indoorCarpark = [
+    "MULTI-STOREY CAR PARK",
+    "SURFACE/MULTI- CAR PARK",
+    "COVERED CAR PARK",
+    "BASEMENT CAR PARKSTOREY",
+    "MECHANISED CAR PARK"
+];
 
 const recommendIndoor = [
     "Light Rain",
@@ -14,22 +17,26 @@ const recommendIndoor = [
     "Heavy Thundery Showers with Gusty Winds"
 ];
 
-
-const carparkTypeFilter = (weatherForecastInput, carparkInfo) => {
+const carparkTypeFilter = ({ weatherForecastInput, carparkInfo }) => {
+    // Check if indoor parking is required based on the weather
     const IndoorRequired = recommendIndoor.includes(weatherForecastInput);
-    const preferredType = IndoorRequired ? "indoor":"outdoor";
-    processedCarparkInfo = carparkInfo.map((item) => {
-        if(carparkType[preferredType].includes(processedCarparkInfo)&&IndoorRequired) 
-            return item;
 
-        return null;
-    })
+    if (!IndoorRequired) {
+        return { filteredParking: carparkInfo };
+    }
 
+    for (let i = 0; i < carparkInfo.length; i++ )
+    {
+        if(indoorCarpark.includes(carparkInfo.CARPARK_TYPE)) filteredParking.push(carparkInfo[i])
+    }
+    return {filteredParking}
 
-   
-}
+};
 
 export default carparkTypeFilter;
+
+
+
 
 
 //SURFACE CAR PARK

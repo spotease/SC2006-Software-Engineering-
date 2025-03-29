@@ -1,0 +1,27 @@
+Overall, Lab 2 is complete with some changes required. Please seperate class diagram and stereotyping
+
+Complete Use Case Diagram: 
+1. Use case bubbles should include a verb as the first word of the bubble
+2. Add Generalisation arrow to guest as account holder can do whatever a guest can do
+
+Use Case Description: 
+1. Alternative Flows should have numbering as well 
+For example, AF-2S, 2S represents the second step of [Flow of events] where this alernate flow is diverted from.
+2. Exception should have numbering as well
+For example: EX-1-2S
+
+Boundary Classes Stereotyping
+To be assessed together with Class diagram since drawn together
+
+Class Diagram of Entity Classes
+1. Methods shouldnt be in boundary object since they shouldnt have logic 
+2. remove Attributes as well boundary objects dont store attributes, they should use entities instead
+3. Do add <<entity>>, <<control>>, <<boundary>> to your class diagram when you remove the stereotypes
+
+Sequence Diagram
+1. For Registration SD, not necessary to have loop
+2. Database shouldnt connect straight to Registration Page, should be boundary > control > entity > database
+Entity and Database can be swapped depending on which order you are doing
+
+Initial Dialog Map
+Naming of the big rectangles shouldnt be system, change to UI or Account Management Component etc.
