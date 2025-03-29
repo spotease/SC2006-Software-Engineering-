@@ -60,10 +60,12 @@ const searchAPI = (userInput) => {
         const LATITUDE = parseFloat(result.LATITUDE);
         const LONGITUDE = parseFloat(result.LONGITUDE);
         const [X, Y] = ConvertCoords.WGS84ToSVY21(LATITUDE, LONGITUDE);
+        const POSTAL = result.POSTAL;
         return {
           ADDRESS,
           LONGITUDE,
           LATITUDE,
+          POSTAL,
           X,
           Y,
         };
