@@ -11,19 +11,36 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 import * as Location from "expo-location";
+import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
-  const [resultAvailable, setResultAvailable] = useState(false);
-  const [processedResults, setProcessedResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
+
+  const [selectedDest, setSelectedDest] = useState(null);
+  const [filterRadius, setFilterRadius] = useState(100);
+  const { sortedCarParks, readyCPFlag } = carParkRetrieval(
+    selectedDest,
+    filterRadius
+  );
+
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
+
+  useEffect(() => {
+    if (readyCPFlag && sortedCarParks) {
+      console.log("Test 2:");
+      console.log(sortedCarParks);
+      sortedCarParks.map((item) => {
+        console.log(item);
+        addMarker(item);
+      });
+    }
+  }, [readyCPFlag]);
 
   // Get current location when the app loads
   useEffect(() => {
@@ -82,31 +99,6 @@ const Home = () => {
     { label: "4. Sheltered Parking", value: "sheltered_parking" },
   ];
 
-  useEffect(() => {
-    if (searchResults && searchResults.results) {
-      const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      const processing = slicedResults.map((result) => {
-        const ADDRESS = result.ADDRESS;
-        const LATITUDE = parseFloat(result.LATITUDE);
-        const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = convertWGS84ToSVY21(LATITUDE, LONGITUDE);
-        return {
-          ADDRESS,
-          LONGITUDE,
-          LATITUDE,
-          X,
-          Y,
-        };
-      });
-      setProcessedResults(processing);
-      setResultAvailable(true);
-      setProcessedResults(processing); // Store processed results in state
-      setResultAvailable(true); // Set result available flag to true
-    } else {
-      setResultAvailable(false);
-    }
-  }, [searchResults]);
-
   return (
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
@@ -150,8 +142,8 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
-        {processedResults &&
-          processedResults.map((carPark, index) => (
+        {searchResults &&
+          searchResults.map((carPark, index) => (
             <Marker
               key={index}
               coordinate={{
@@ -165,9 +157,9 @@ const Home = () => {
           ))}
       </MapView>
 
-      {resultAvailable && !loadingFlag && (
+      {!loadingFlag && (
         <FlatList
-          data={processedResults}
+          data={searchResults}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity

@@ -14,7 +14,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
 
   useEffect(() => {
     const handleRetrieval = async () => {
-      if (!selectedDestination || !selectedDestination.X || !selectedDestination.Y) {
+      if (!selectedDestination || selectedDestination.length == 0) {
         setCarParks([]);
         setReadyCPFlag(false);
         return;
@@ -52,7 +52,10 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   useEffect(() => {
     if (carParks) {
       const processed = carParks.map((item) => {
-        const [cLat, cLng] = ConvertCoords.SVY21ToWGS84(item.x_coord, item.y_coord);
+        const [cLat, cLng] = ConvertCoords.SVY21ToWGS84(
+          item.x_coord,
+          item.y_coord
+        );
         const distance = calculateDistance(
           selectedDestination.X,
           selectedDestination.Y,
@@ -73,6 +76,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
 
       const sorted = processed.sort((a, b) => a.DISTANCEAWAY - b.DISTANCEAWAY);
       setSortedCarParks(sorted);
+      console.log(sortedCarParks);
       setReadyCPFlag(true);
     }
   }, [carParks]);
