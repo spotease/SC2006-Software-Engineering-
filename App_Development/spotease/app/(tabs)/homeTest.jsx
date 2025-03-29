@@ -12,14 +12,23 @@ export default function homeTest() {
   const { searchResults, loadingFlag } = searchAPI(userInput);
   const { sortedCarParks, readyCPFlag } = carParkRetrieval(
     searchResults[0],
-    100
+    200
   );
   const { region } = ConvertPostalToRegion({ userInput });
   const { forecast } = WeatherAPI({ userInput: region });
-  const [filteredParking, setFilteredParking] = useState([]);
-
-  // const {forecastResult} = WeatherAPI({region});
-  //const result = carparkTypeFilter({ weatherForecastInput: forecast, carparkInfo: sortedCarParks });
+  const [filteredParking, setFilteredParking] = useState({});
+  useEffect(() => {
+    setFilteredParking(
+      carparkTypeFilter({
+        weatherForecastInput: forecast,
+        carparkInfo: sortedCarParks,
+      })
+    );
+    if (filteredParking.length >= 1) {
+      console.log("Hello");
+      console.log(filteredParking);
+    }
+  }, [searchResults]);
 
   return (
     <View style={styles.container}>
@@ -52,7 +61,6 @@ export default function homeTest() {
       ) : (
         <Text>False</Text>
       )}
-
       <Text>Filtered Parking:</Text>
       {filteredParking.length > 0 ? (
         filteredParking.map((park, index) => (
