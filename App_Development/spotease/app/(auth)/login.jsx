@@ -51,6 +51,7 @@ export default function Login() {
   
       // ✅ Save JWT Token for Authentication
       await AsyncStorage.setItem("authToken", data.token);
+      console.log("data:"+JSON.stringify(data));
   
       Alert.alert("Success", "Login successful!");
       router.push("/home");
