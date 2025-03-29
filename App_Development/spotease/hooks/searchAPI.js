@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import ConvertCoords from "./ConvertCoords";
 //Custom Hook for fetching search results
-const API_URL = `https://sc2006-backend-spotease.onrender.com/carparkRetrival`; // ✅ Correct API endpoint
-
 const searchAPI = (userInput) => {
   // State variables
   const [retrieveSearch, setRetrieveSearch] = useState(null);

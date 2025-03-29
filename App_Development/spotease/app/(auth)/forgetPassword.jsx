@@ -14,6 +14,7 @@ console.log(API_URL);
 export default function forgetPassword() {
     const router = useRouter();
     const [email, setEmail] = useState("");
+    const [error, setError] = useState("");
 
     const handleForgetPassword = async () => {
       // Validate empty fields
@@ -21,6 +22,13 @@ export default function forgetPassword() {
         Alert.alert("Error", "Email cannot be empty. Try again.");
         return;
       }
+
+      //email must have @.domain.com
+      if (!email.match("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$")) {
+        setError("Invalid email format. Please enter a valid email (e.g., example@domain.com).");
+        return;
+      }
+
       try {
         const response = await fetch(API_URL, {
           method: "POST",
@@ -33,7 +41,7 @@ export default function forgetPassword() {
         const data = await response.json();
     
         if (response.ok) {
-          Alert.alert("Success", "Check your email for the password reset link.");
+          Alert.alert("Success", "Check your email for the password reset OTP.");
           router.push("/resetpassword");
         } else {
           Alert.alert("Error", data.error || "Something went wrong.");
@@ -58,6 +66,8 @@ export default function forgetPassword() {
       />
 
       <CustomButton title="Reset Password" onPress={handleForgetPassword} />
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
   )
 }
@@ -67,4 +77,5 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: "bold", color: "#00E6E6", marginBottom: 20 },
   buttonText: { color: "#FFF", fontWeight: "bold" },
   logo: {width: 400, height: 200, marginBottom: 15},
+  errorText: { color: "red", marginTop: 10 },
 });

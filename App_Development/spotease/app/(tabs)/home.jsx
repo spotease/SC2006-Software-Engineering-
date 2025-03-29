@@ -11,14 +11,14 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
-import ConvertCoords from "../../hooks/ConvertCoords";
+import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 import * as Location from "expo-location";
-import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [userLocation, setUserLocation] = useState({});
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
 
   const [selectedDest, setSelectedDest] = useState(null);
@@ -52,7 +52,7 @@ const Home = () => {
       }
 
       let loc = await Location.getCurrentPositionAsync({});
-      setUserLocation({
+      setLocation({
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
         latitudeDelta: 0.01,
@@ -74,9 +74,7 @@ const Home = () => {
       X: item.X,
       Y: item.Y,
     };
-    setFilterRadius(100);
     setDestMarker(markerProperties);
-    setSelectedDest(item);
     setSearchQuery("");
     console.log("Destination Selected");
   };
@@ -123,27 +121,17 @@ const Home = () => {
 
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: 1.2868108, // Center latitude
-          longitude: 103.8545349, // Center longitude
-          latitudeDelta: 0.05, // Zoom level
-          longitudeDelta: 0.05, // Zoom level
-        }}
+        region={
+          location || {
+            latitude: 1.3521, // Default: Singapore if current location is denied
+            longitude: 103.8198,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          }
+        }
         showsUserLocation={true}
         showsMyLocationButton={true}
       >
-        {mapMarkers &&
-          mapMarkers.map((marker, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: marker.LATITUDE,
-                longitude: marker.LONGITUDE,
-              }}
-              title={marker.CARPARK_NO}
-              description={marker.ADDRESS}
-            ></Marker>
-          ))}
         {/*Destination Marker*/}
         {destMarker.LATITUDE && destMarker.LONGITUDE && (
           <Marker
@@ -153,17 +141,20 @@ const Home = () => {
             }}
           ></Marker>
         )}
-        {/*User Location Marker*/}
-        {userLocation.latitude && userLocation.longitude && (
-          <Marker
-            coordinate={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-            }}
-            title="Hello"
-            pinColor="white"
-          ></Marker>
-        )}
+        {/* You can customize the marker */}
+        {processedResults &&
+          processedResults.map((carPark, index) => (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: carPark.LATITUDE,
+                longitude: carPark.LONGITUDE,
+              }}
+              title={carPark.ADDRESS}
+              description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
+              pinColor="blue" // Car parks are marked in red
+            />
+          ))}
       </MapView>
 
       {!loadingFlag && (
