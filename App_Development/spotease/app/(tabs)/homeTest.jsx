@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import SearchBar from "../../components/SearchBar";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
+import ConvertCoords from "../../hooks/ConvertCoords";
 import calculateDistance from "../../hooks/calculateDistanceXY";
 import searchAPI from "../../hooks/searchAPI";
+import carParkRetrieval from "../../hooks/carParkRetrieval";
+import routingAPI from "../../hooks/routingAPI";
+import WeatherAPI from "../../hooks/weatherAPI";
+import carparkTypeFilter from "../../hooks/carparkTypeFilter";
+import ConvertPostalToRegion from '../../hooks/convertPostalToRegion';
+
 
 export default function homeTest() {
   const [userInput, setUserInput] = useState("");
-  const [processedResults, setProcessedResults] = useState(null);
+  const [processedResults, setProcessedResults] = useState([]);
   const [resultAvailable, setResultAvailable] = useState(false);
   const { searchResults, loadingFlag } = searchAPI(userInput);
+  const { region } = ConvertPostalToRegion({userInput});
+  const { forecast } = WeatherAPI({userInput:region})
+  const [filteredParking, setFilteredParking] = useState([]);
+
 
   const carParkData = [
     {
@@ -153,46 +163,60 @@ export default function homeTest() {
       "Car Park Basement": "N",
     },
   ];
-  const [carParksWithinRadius, setCarpark] = useState(null);
+  const [carParksWithinRadius, setCarParkWithinRadius] = useState(null);
+  const { sortedCarParks, readyCPFlag } = carParkRetrieval(processedResults[0], 500);
 
   useEffect(() => {
+
+
     if (searchResults && searchResults.results) {
       const slicedResults = searchResults.results.slice(0, 5); // Slice the first 5 results
-      console.log(slicedResults);
+      // console.log(slicedResults);
       const processing = slicedResults.map((result) => {
         const ADDRESS = result.ADDRESS;
         const LATITUDE = parseFloat(result.LATITUDE);
         const LONGITUDE = parseFloat(result.LONGITUDE);
-        const [X, Y] = convertWGS84ToSVY21(LATITUDE, LONGITUDE);
+        const POSTAL = result.POSTAL;
+        const [X, Y] = ConvertCoords.WGS84ToSVY21(LATITUDE, LONGITUDE);
+        const [testLat, testLog] = ConvertCoords.SVY21ToWGS84(X, Y);
+        // console.log(testLat, testLog);
         const radius = 500;
-        carParksWithinRadius1 = carParkData.filter((carPark) => {
-          const distance = calculateDistance(
-            X,
-            Y,
-            carPark["X Coord"],
-            carPark["Y Coord"]
-          );
-          console.log(distance);
-          return distance <= radius;
-        });
-        console.log(carParksWithinRadius1);
-        setCarpark(carParksWithinRadius1);
+        // carParksWithinRadius1 = carParkData.filter((carPark) => {
+        //   const distance = calculateDistance(
+        //     X,
+        //     Y,
+        //     carPark["X Coord"],
+        //     carPark["Y Coord"]
+        //   );
+        //   //console.log(distance);
+        //   return distance <= radius;
+        // });
+        setCarParkWithinRadius(carParksWithinRadius);
+        
+        // const {forecastResult} = WeatherAPI({region});
+
 
         return {
           ADDRESS,
           LONGITUDE,
           LATITUDE,
+          POSTAL,
           X,
           Y,
         };
       });
-      console.log(processing);
+      // console.log(processing);
       setProcessedResults(processing); // Store processed results in state
       setResultAvailable(true); // Set result available flag to true
+      const result = carparkTypeFilter({ weatherForecastInput: forecast, carparkInfo: sortedCarParks });
+      // console.log(result)
+      setFilteredParking(result);
+      //routingAPI(processing[0], processing[1]);
+      // console.log(filteredParking)
     } else {
       setResultAvailable(false); // Set result available flag to false
     }
-  }, [searchResults]);
+  }, [userInput,searchResults]);
 
   return (
     <View style={styles.container}>
@@ -201,9 +225,11 @@ export default function homeTest() {
       {resultAvailable && !loadingFlag ? (
         <ScrollView style={styles.searchResultsContainer}>
           {/* Display only the first 10 results */}
-         /* {processedResults.map((result, index) => (
+          {processedResults.map((result, index) => (
             <View key={index} style={styles.resultItem}>
-              <Text>{result.ADDRESS}</Text>
+              <Text>Testing Region:{region}</Text>
+              <Text>Forecast: {forecast}</Text>
+              {/* <Text>{result.ADDRESS}</Text>
               <Text>
                 Latitude: {result.LATITUDE} Longitude: {result.LONGITUDE}
               </Text>
@@ -211,14 +237,14 @@ export default function homeTest() {
                 X: {result.X} Y: {result.Y}
               </Text>
               <Text>
-                Distance:{" "}
+                Distance:
                 {calculateDistance(
                   result.X,
                   result.Y,
                   carParkData[9]["X Coord"],
                   carParkData[9]["Y Coord"]
                 )}
-              </Text>
+              </Text> */}
             </View>
           ))}
         </ScrollView>
@@ -236,6 +262,26 @@ export default function homeTest() {
       ) : (
         <Text>NIL</Text>
       )}
+      {readyCPFlag && sortedCarParks[0] ? (
+        <Text>{sortedCarParks[0].ADDRESS}</Text>
+      ) : (
+        <Text>False</Text>
+      )}
+
+
+
+    <Text>Filtered Parking:</Text>
+          {filteredParking.length > 0 ? (
+            filteredParking.map((park, index) => (
+              <View key={index}>
+                <Text>{park.ADDRESS}</Text>
+              </View>
+            ))
+          ) : (
+            <Text>No filtered parking available</Text>
+          )}
+
+    
     </View>
   );
 }
@@ -262,4 +308,4 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-}); 
+});
