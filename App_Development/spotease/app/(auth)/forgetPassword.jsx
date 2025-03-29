@@ -41,7 +41,7 @@ export default function forgetPassword() {
         const data = await response.json();
     
         if (response.ok) {
-          Alert.alert("Success", "Check your email for the password reset link.");
+          Alert.alert("Success", "Check your email for the password reset OTP.");
           router.push("/resetpassword");
         } else {
           Alert.alert("Error", data.error || "Something went wrong.");
