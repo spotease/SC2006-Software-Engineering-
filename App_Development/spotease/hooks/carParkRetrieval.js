@@ -14,11 +14,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
 
   useEffect(() => {
     const handleRetrieval = async () => {
-      if (
-        !selectedDestination ||
-        !selectedDestination.X ||
-        !selectedDestination.Y
-      ) {
+      if (!selectedDestination || selectedDestination.length == 0) {
         setCarParks([]);
         setReadyCPFlag(false);
         return;
