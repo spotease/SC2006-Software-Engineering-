@@ -11,8 +11,8 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
-import convertWGS84ToSVY21 from "../../hooks/convertWGS84ToSVY21";
 import * as Location from "expo-location";
+import carParkRetrieval from "../../hooks/carParkRetrieval";
 
 const Home = () => {
   const [selectedFilters, setSelectedFilters] = useState([]);
@@ -22,7 +22,7 @@ const Home = () => {
   const { searchResults, loadingFlag } = searchAPI(searchQuery);
 
   const [selectedDest, setSelectedDest] = useState(null);
-  const [filterRadius, setFilterRadius] = useState(0);
+  const [filterRadius, setFilterRadius] = useState(100);
   const { sortedCarParks, readyCPFlag } = carParkRetrieval(
     selectedDest,
     filterRadius
@@ -142,8 +142,8 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
-        {processedResults &&
-          processedResults.map((carPark, index) => (
+        {searchResults &&
+          searchResults.map((carPark, index) => (
             <Marker
               key={index}
               coordinate={{
