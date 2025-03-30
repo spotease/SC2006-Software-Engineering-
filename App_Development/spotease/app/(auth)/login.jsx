@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import EntryBox from "../../components/EntryBox";
 import CustomButton from "../../components/CustomButton";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -68,6 +68,22 @@ export default function Login() {
       Alert.alert("Error","Internal Server Error");
     }
   }
+
+  const removeAsyncStorage = async() => {
+    try{
+      const token = await AsyncStorage.getItem('authToken');
+      if (token){
+        console.log("success remove Async")
+        await AsyncStorage.removeItem('authToken');
+      }
+    }catch (error){
+        console.error('error remove Async');
+    }
+
+  };
+  useFocusEffect(
+    useCallback(()=> {removeAsyncStorage();})
+  )
   return (
     <View style={styles.container}>
       <Image source={logo} style={styles.logo} resizeMode="contain" />

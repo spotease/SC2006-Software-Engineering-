@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useCallback} from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Swiper from "react-native-swiper";
 import { useRouter } from "expo-router";
@@ -7,11 +7,14 @@ import FeatureSlide2 from "../components/onboarding/FeatureSlide2";
 import FeatureSlide3 from "../components/onboarding/FeatureSlide3";
 import CustomButton from '../components/CustomButton';
 import GuestLoginButton from '../components/JustTextButton';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Onboarding() {
 const router = useRouter();
+
+
   return (
-    <View style={styles.container}>
+        <View style={styles.container}>
         <View style={styles.imageContainer}>
             <Swiper loop={false} showsPagination={true} dotStyle={styles.dot} activeDotStyle={styles.activeDot}>
                 <FeatureSlide1 />
