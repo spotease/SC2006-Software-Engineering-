@@ -21,8 +21,9 @@ const createLocationHistory = async (locationData) => {
     });
 
     const text = await res.text();
+    let data;
     try {
-        data = JSON.parse(text); 
+        data = JSON.parse(text);    
     } catch (err) {
         console.warn('Non-JSON response:', text); 
         throw new Error(`Invalid JSON response: ${text}`);
@@ -33,9 +34,9 @@ const createLocationHistory = async (locationData) => {
         } else {
         Alert.alert('Error', data.error || 'Failed to save location');
         }
-    } catch (err) {
-        console.error('Error saving location:', err);
-        Alert.alert('Error', err.message || 'Something went wrong.');
+    } catch (error) {
+        console.error('Error saving location:', error);
+        Alert.alert('Error', error.message || 'Something went wrong.');
     }
 
 

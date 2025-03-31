@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert,} from 'react-native';
 
-const fetchLocationHistory = async (locationData) => {
+const fetchLocationHistory = async () => {
 
     
     const token = await AsyncStorage.getItem('authToken');
@@ -11,17 +11,35 @@ const fetchLocationHistory = async (locationData) => {
     }
 
     try {
-        const res = await fetch('https://sc2006-backend-spotease.onrender.com/profile/locationHistory', {
+        const res = await fetch('https://sc2006-backend-spotease.onrender.com/profile/fetchLocationHistory', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(locationData),
     });
 
+    const text = await res.text();
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.warn('Non-JSON response from server:', text)
+      throw new Error('Invalid JSON response');
+    }
+
+
+    if (!res.ok){
+      console.error('Error Fecthing Location', data.error);
+      return;
+    }
+
+    return data;
+
+
     }catch(error){
-        console.error('Error Fetching Location',err);
+        console.error('Error Fetching Location',error);
     }
 }
 
