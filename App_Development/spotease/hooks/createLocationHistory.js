@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Alert,} from 'react-native';
 
@@ -12,7 +11,7 @@ const createLocationHistory = async (locationData) => {
     }
 
     try {
-        const res = await fetch('https://sc2006-backend-spotease.onrender.com/profile/locationHistory', {
+        const res = await fetch('https://sc2006-backend-spotease.onrender.com/profile/createLocationHistory', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
