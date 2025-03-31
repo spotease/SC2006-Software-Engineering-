@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Modal, Text, Pressable, StyleSheet } from 'react-native';
+import Slider from '@react-native-community/slider'; // Import the slider
 import { Ionicons } from '@expo/vector-icons';
 
 const FilterButton = ({ filterOptions = [], onFilterSelect }) => {
-  const [isFilterVisible, setIsFilterVisible] = useState(false); 
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState([]);
+  const [distance, setDistance] = useState(1000); // Default: 1000 metres
 
   const toggleFilterModal = () => {
-    setIsFilterVisible(!isFilterVisible); 
+    setIsFilterVisible(!isFilterVisible);
   };
 
   const handleFilterToggle = (filterValue) => {
     if (selectedFilters.includes(filterValue)) {
-      setSelectedFilters(selectedFilters.filter((value) => value !== filterValue)); 
+      setSelectedFilters(selectedFilters.filter((value) => value !== filterValue));
     } else {
-      setSelectedFilters([...selectedFilters, filterValue]); 
+      setSelectedFilters([...selectedFilters, filterValue]);
     }
   };
 
   const applyFilters = () => {
-    onFilterSelect(selectedFilters); 
-    toggleFilterModal(); 
+    onFilterSelect({ selectedFilters, distance }); // Pass selected filters and distance
+    toggleFilterModal();
   };
 
   return (
@@ -33,7 +35,7 @@ const FilterButton = ({ filterOptions = [], onFilterSelect }) => {
         visible={isFilterVisible}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setIsFilterVisible(false)} 
+        onRequestClose={() => setIsFilterVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -44,13 +46,28 @@ const FilterButton = ({ filterOptions = [], onFilterSelect }) => {
                 key={index}
                 style={[
                   styles.filterOption,
-                  selectedFilters.includes(option.value) && styles.filterOptionSelected, 
+                  selectedFilters.includes(option.value) && styles.filterOptionSelected,
                 ]}
-                onPress={() => handleFilterToggle(option.value)} 
+                onPress={() => handleFilterToggle(option.value)}
               >
                 <Text style={styles.filterOptionText}>{option.label}</Text>
               </Pressable>
             ))}
+
+            <Text style={[styles.sliderText, { color: "#00C3FF" }]}>
+              Selected Distance: {distance.toFixed(0)} m
+            </Text>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={5000}
+              step={100}
+              value={distance}
+              onValueChange={setDistance}
+              minimumTrackTintColor="#00C3FF"
+              maximumTrackTintColor="#CCCCCC"
+              thumbTintColor="#00C3FF"
+            />
 
             <Pressable style={styles.applyButton} onPress={applyFilters}>
               <Text style={styles.applyButtonText}>Apply Filters</Text>
@@ -71,7 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     width: '80%',
@@ -92,11 +109,21 @@ const styles = StyleSheet.create({
     borderBottomColor: '#444444',
   },
   filterOptionSelected: {
-    backgroundColor: '#00C3FF20', 
+    backgroundColor: '#00C3FF20',
   },
   filterOptionText: {
     fontSize: 16,
     color: '#FFFFFF',
+  },
+  sliderLabel: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
   },
   applyButton: {
     marginTop: 15,
