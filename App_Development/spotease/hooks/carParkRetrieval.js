@@ -51,7 +51,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   }, [selectedDestination, filterRadius]);
 
   useEffect(() => {
-    if (carParks && carParks.length > 1) {
+    if (carParks && carParks.length > 0) {
       try {
         const processed = carParks.map((item) => {
           const [cLat, cLng] = ConvertCoords.SVY21ToWGS84(
