@@ -157,7 +157,7 @@ const Home = () => {
           ))}
       </MapView>
 
-      {!loadingFlag && (
+      {!loadingFlag && searchResults.length > 0 && (
         <FlatList
           data={searchResults}
           keyExtractor={(item, index) => index.toString()}
