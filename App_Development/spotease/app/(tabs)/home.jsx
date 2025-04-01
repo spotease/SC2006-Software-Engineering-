@@ -63,6 +63,9 @@ const Home = () => {
 
   const handleFilterSelect = (filters) => {
     setSelectedFilters(filters);
+    if (filters.distance != undefined) {
+      setFilterRadius(filters.distance / 2);
+    }
     console.log("Selected filters:", filters);
   };
 
@@ -75,6 +78,7 @@ const Home = () => {
       Y: item.Y,
     };
     setDestMarker(markerProperties);
+    setSelectedDest(item);
     setSearchQuery("");
     console.log("Destination Selected");
   };
@@ -94,7 +98,10 @@ const Home = () => {
 
   const filterOptions = [
     { label: "1. Sheltered Parking", value: "sheltered_parking" },
-    { label: "2. Weather Parking Recommendation", value: "weather_parking_recommendation" },
+    {
+      label: "2. Weather Parking Recommendation",
+      value: "weather_parking_recommendation",
+    },
   ];
 
   return (
@@ -140,8 +147,9 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
-        {searchResults &&
-          searchResults.map((carPark, index) => (
+        {sortedCarParks &&
+          readyCPFlag &&
+          sortedCarParks.map((carPark, index) => (
             <Marker
               key={index}
               coordinate={{
