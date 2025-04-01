@@ -61,7 +61,7 @@ export default function Login() {
       console.log("data:"+JSON.stringify(data));
   
       Alert.alert("Success", "Login successful!");
-      router.push("/home");
+      router.push("/beforeHome");
     }
     catch(error){
       console.error("Fetch error:", error);
