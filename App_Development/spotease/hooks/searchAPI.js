@@ -45,6 +45,7 @@ const searchAPI = (userInput) => {
     setLoadingFlag(true); // Set loading flag to true
     if (!userInput) {
       setRetrieveSearch(null);
+      setSearchResults([]);
       setLoadingFlag(false);
       return;
     }
@@ -71,7 +72,7 @@ const searchAPI = (userInput) => {
         };
       });
       setSearchResults(processing); // Store processed results in state
-      console.log(searchResults);
+      //console.log(searchResults);
     } else {
       setSearchResults([]);
     }
