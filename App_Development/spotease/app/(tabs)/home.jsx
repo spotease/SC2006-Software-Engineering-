@@ -93,10 +93,8 @@ const Home = () => {
   };
 
   const filterOptions = [
-    { label: "1. Shortest Distance", value: "shortest_distance" },
-    { label: "2. Cheapest Parking", value: "cheapest_parking" },
-    { label: "3. EV Parking", value: "ev_parking" },
-    { label: "4. Sheltered Parking", value: "sheltered_parking" },
+    { label: "1. Sheltered Parking", value: "sheltered_parking" },
+    { label: "2. Weather Parking Recommendation", value: "weather_parking_recommendation" },
   ];
 
   return (
