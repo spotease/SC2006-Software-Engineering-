@@ -6,7 +6,7 @@ import ConvertCoords from "./ConvertCoords";
 /* Return Values are sortedCarParks, readyCPFlag */
 const carParkRetrieval = (selectedDestination, filterRadius) => {
   //State Variables
-  const [carParks, setCarParks] = useState(null);
+  const [carParks, setCarParks] = useState([]);
   const [sortedCarParks, setSortedCarParks] = useState([]);
   const [readyCPFlag, setReadyCPFlag] = useState(false);
 
@@ -14,8 +14,13 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
 
   useEffect(() => {
     const handleRetrieval = async () => {
-      if (!selectedDestination || selectedDestination.length < 1) {
+      if (
+        !selectedDestination ||
+        selectedDestination.length < 1 ||
+        selectedDestination.X == undefined
+      ) {
         setCarParks([]);
+        console.log(carParks.length);
         setReadyCPFlag(false);
         return;
       }
@@ -50,34 +55,40 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   }, [selectedDestination, filterRadius]);
 
   useEffect(() => {
-    if (carParks) {
-      const processed = carParks.map((item) => {
-        const [cLat, cLng] = ConvertCoords.SVY21ToWGS84(
-          item.x_coord,
-          item.y_coord
-        );
-        const distance = calculateDistance(
-          selectedDestination.X,
-          selectedDestination.Y,
-          item.x_coord,
-          item.y_coord
-        );
-        return {
-          ADDRESS: item.address,
-          CARPARK_NO: item.car_park_no,
-          CARPARK_TYPE: item.car_park_type,
-          LATITUDE: cLat,
-          LONGITUDE: cLng,
-          X: item.x_coord,
-          Y: item.y_coord,
-          DISTANCEAWAY: distance,
-        };
-      });
+    if (carParks && carParks.length > 1) {
+      try {
+        const processed = carParks.map((item) => {
+          const [cLat, cLng] = ConvertCoords.SVY21ToWGS84(
+            item.x_coord,
+            item.y_coord
+          );
+          const distance = calculateDistance(
+            selectedDestination.X,
+            selectedDestination.Y,
+            item.x_coord,
+            item.y_coord
+          );
+          return {
+            ADDRESS: item.address,
+            CARPARK_NO: item.car_park_no,
+            CARPARK_TYPE: item.car_park_type,
+            LATITUDE: cLat,
+            LONGITUDE: cLng,
+            X: item.x_coord,
+            Y: item.y_coord,
+            DISTANCEAWAY: distance,
+          };
+        });
 
-      const sorted = processed.sort((a, b) => a.DISTANCEAWAY - b.DISTANCEAWAY);
-      setSortedCarParks(sorted);
-      console.log(sortedCarParks);
-      setReadyCPFlag(true);
+        const sorted = processed.sort(
+          (a, b) => a.DISTANCEAWAY - b.DISTANCEAWAY
+        );
+        setSortedCarParks(sorted);
+        console.log(sortedCarParks);
+        setReadyCPFlag(true);
+      } catch (error) {
+        console.log("Error: ", error);
+      }
     }
   }, [carParks]);
 
