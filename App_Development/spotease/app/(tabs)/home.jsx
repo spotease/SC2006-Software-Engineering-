@@ -19,28 +19,46 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const { searchResults, loadingFlag } = searchAPI(searchQuery);
+  const { searchResults, loadingFlag } = searchAPI(searchQuery); // Variable to store searchResults from User Input
 
-  const [selectedDest, setSelectedDest] = useState(null);
-  const [filterRadius, setFilterRadius] = useState(100);
+  const [selectedDest, setSelectedDest] = useState(null); // Variable to store Destination of User
+  const [selectedCP, setSelectedCP] = useState(null); // Variable to store Selected Carpark of User
+  const [filterRadius, setFilterRadius] = useState(1000 / 2); // Variable to store Filter Distance in (m)
   const { sortedCarParks, readyCPFlag } = carParkRetrieval(
+    //Variable to store nearby Carparks sorted by nearest distance
     selectedDest,
     filterRadius
   );
 
-  const [mapMarkers, setMapMarkers] = useState([]);
-  const [destMarker, setDestMarker] = useState({});
+  const [carParkMarkers, setCarParkMarkers] = useState([]); // Variable to store nearby Carpark Markers
+  const [destMarker, setDestMarker] = useState({}); // Variable to store selected destination of User
 
+  // UseEffect to add nearby carparks to CarParkMarkers for Display
   useEffect(() => {
     if (readyCPFlag && sortedCarParks) {
-      console.log("Test 2:");
-      console.log(sortedCarParks);
       sortedCarParks.map((item) => {
         console.log(item);
-        addMarker(item);
+        addCarParkMarker(item);
       });
     }
   }, [readyCPFlag]);
+
+  //Function to addCarParkMarkers
+  const addCarParkMarker = (item) => {
+    const newMarker = {
+      id: carParkMarkers.length + 1,
+      ADDRESS: item.ADDRESS,
+      LATITUDE: item.LATITUDE,
+      LONGITUDE: item.LONGITUDE,
+      X: item.X,
+      Y: item.Y,
+    };
+
+    setCarParkMarkers((prevcarParkMarkers) => [
+      ...prevcarParkMarkers,
+      newMarker,
+    ]);
+  };
 
   // Get current location when the app loads
   useEffect(() => {
@@ -69,6 +87,7 @@ const Home = () => {
     console.log("Selected filters:", filters);
   };
 
+  // Function to handle Destination Selection
   const handleDestinationPress = (item) => {
     const markerProperties = {
       ADDRESS: item.ADDRESS,
@@ -81,19 +100,6 @@ const Home = () => {
     setSelectedDest(item);
     setSearchQuery("");
     console.log("Destination Selected");
-  };
-
-  const addMarker = (item) => {
-    const newMarker = {
-      id: mapMarkers.length + 1,
-      ADDRESS: item.ADDRESS,
-      LATITUDE: item.LATITUDE,
-      LONGITUDE: item.LONGITUDE,
-      X: item.X,
-      Y: item.Y,
-    };
-
-    setMapMarkers((prevMapMarkers) => [...prevMapMarkers, newMarker]);
   };
 
   const filterOptions = [
