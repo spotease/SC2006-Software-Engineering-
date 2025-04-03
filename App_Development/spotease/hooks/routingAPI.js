@@ -3,7 +3,7 @@ import getAuthToken from "./getAuthToken";
 
 async function routingAPI(startDestination, endDestination) {
   if (!startDestination || !endDestination) {
-    console.error("Missing start or end destination");
+    console.log("Missing start or end destination");
     return null; // Return null to indicate failure
   }
 
@@ -11,7 +11,7 @@ async function routingAPI(startDestination, endDestination) {
     const authToken = await getAuthToken();
     console.log(authToken);
     if (!authToken) {
-      console.error("Failed to retrieve auth token.");
+      console.log("Failed to retrieve auth token.");
       return null; // Return null if token retrieval fails
     }
 
