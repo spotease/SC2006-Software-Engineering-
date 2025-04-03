@@ -25,7 +25,6 @@ export default function homeTest() {
       })
     );
     if (filteredParking.length >= 1) {
-      console.log("Hello");
       console.log(filteredParking);
     }
   }, [searchResults]);

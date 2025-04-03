@@ -16,7 +16,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
     const handleRetrieval = async () => {
       if (!selectedDestination || selectedDestination.X == undefined) {
         setCarParks([]);
-        console.log(carParks.length);
+        // console.log(carParks.length);
         setReadyCPFlag(false);
         return;
       }
@@ -80,7 +80,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
           (a, b) => a.DISTANCEAWAY - b.DISTANCEAWAY
         );
         setSortedCarParks(sorted);
-        console.log(sortedCarParks);
+        // console.log(sortedCarParks);
         setReadyCPFlag(true);
       } catch (error) {
         console.log("Error: ", error);

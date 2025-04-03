@@ -13,9 +13,14 @@ import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
 import * as Location from "expo-location";
 import carParkRetrieval from "../../hooks/carParkRetrieval";
+import WeatherAPI from "../../hooks/weatherAPI";
+import carparkTypeFilter from "../../hooks/carparkTypeFilter";
+import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
+
+
 
 const Home = () => {
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -30,18 +35,35 @@ const Home = () => {
 
   const [mapMarkers, setMapMarkers] = useState([]);
   const [destMarker, setDestMarker] = useState({});
+  const { selectedRegion } = ConvertPostalToRegion(selectedDest);
+  const {forecast} = WeatherAPI(selectedRegion);
+  //const {filteredParking} = carparkTypeFilter(forecast,sortedCarParks);
+  const {filteredParking} = carparkTypeFilter(selectedFilters,sortedCarParks);
+
+
+
+  // useEffect(() => {
+  //   if (readyCPFlag && sortedCarParks) {
+  //     // console.log("Test 2:");
+  //     // console.log(sortedCarParks);
+  //     setMapMarkers([]); // Clear previous markers
+  //     sortedCarParks.map((item) => {
+  //       // console.log(item);
+  //       //addMarker(item);
+  //     });
+  //   }
+  // }, [readyCPFlag]);
 
   useEffect(() => {
-    if (readyCPFlag && sortedCarParks) {
-      console.log("Test 2:");
-      console.log(sortedCarParks);
-      sortedCarParks.map((item) => {
-        console.log(item);
+    if(filteredParking && filteredParking.length > 0) {
+      console.log("Filtered Parking:", filteredParking);
+      setMapMarkers([]); // Clear previous markers
+      filteredParking.map((item) => {
+        // console.log(item);
         addMarker(item);
       });
     }
-  }, [readyCPFlag]);
-
+  },[filteredParking]);
   // Get current location when the app loads
   useEffect(() => {
     (async () => {
@@ -62,12 +84,41 @@ const Home = () => {
   }, []);
 
   const handleFilterSelect = (filters) => {
-    setSelectedFilters(filters);
-    if (filters.distance != undefined) {
-      setFilterRadius(filters.distance / 2);
+    // Reset all filters to false by default
+    const updatedFilters = {
+      sheltered_parking: false,  // Reset to false
+      weather_parking_recommendation: false,  // Reset to false
+      ...filters,  // Spread the incoming filters to apply the selected filter
+    };
+  
+    // Log the updated filter values after resetting
+    console.log("selected filters:", updatedFilters);
+  
+    // Update the selected filters state with the new filters object
+    setSelectedFilters(updatedFilters);
+  
+    // If distance is set, adjust the filter radius
+    if (updatedFilters.distance != undefined) {
+      setFilterRadius(updatedFilters.distance / 2);
     }
-    console.log("Selected filters:", filters);
+  
+    // Handle Sheltered Parking filter logic
+    if (updatedFilters.sheltered_parking) {
+      console.log("Sheltered parking filter selected");
+      // Implement sheltered parking filtering logic
+      
+    }
+  
+    // Handle Weather Parking Recommendation filter logic
+    if (updatedFilters.weather_parking_recommendation) {
+      console.log("Weather parking recommendation filter selected");
+      console.log(selectedRegion);
+      console.log(forecast);
+
+    }
   };
+  
+  
 
   const handleDestinationPress = (item) => {
     const markerProperties = {
@@ -84,6 +135,7 @@ const Home = () => {
   };
 
   const addMarker = (item) => {
+    console.log("Adding marker:", item.ADDRESS);
     const newMarker = {
       id: mapMarkers.length + 1,
       ADDRESS: item.ADDRESS,
@@ -97,12 +149,13 @@ const Home = () => {
   };
 
   const filterOptions = [
-    { label: "1. Sheltered Parking", value: "sheltered_parking" },
+    { label: "1. Sheltered Parking", value: "sheltered_parking" }, 
     {
       label: "2. Weather Parking Recommendation",
       value: "weather_parking_recommendation",
-    },
+    }, // This is just an example, you can adjust the labels accordingly.
   ];
+  
 
   return (
     <View style={styles.container}>
@@ -147,17 +200,15 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
-        {sortedCarParks &&
-          readyCPFlag &&
-          sortedCarParks.map((carPark, index) => (
+        {mapMarkers.map((item, index) => (
             <Marker
               key={index}
               coordinate={{
-                latitude: carPark.LATITUDE,
-                longitude: carPark.LONGITUDE,
+                latitude: item.LATITUDE,
+                longitude: item.LONGITUDE,
               }}
-              title={carPark.ADDRESS}
-              description={`Lat: ${carPark.LATITUDE}, Lng: ${carPark.LONGITUDE}`}
+              title={item.ADDRESS}
+              description={`Lat: ${item.LATITUDE}, Lng: ${item.LONGITUDE}`}
               pinColor="blue" // Car parks are marked in red
             />
           ))}

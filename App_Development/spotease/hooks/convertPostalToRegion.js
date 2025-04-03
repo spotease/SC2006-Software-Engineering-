@@ -98,8 +98,9 @@ const postal_mapping = {
   Sembawang: ["750000", "759999"],
 };
 
-const ConvertPostalToRegion = ({ userInput }) => {
-  const [region, setRegion] = useState(""); // To store the region
+const ConvertPostalToRegion = (selectedDest) => {
+  const [selectedRegion, setSelectedRegion] = useState(""); // To store the region
+  /*
   const { searchResults, loadingFlag } = searchAPI(userInput); // Fetching data with searchAPI hook using userInput
 
   // Effect to update postal code when search results are available
@@ -121,8 +122,25 @@ const ConvertPostalToRegion = ({ userInput }) => {
       }
     }
   }, [searchResults]);
+  */
+ useEffect(()=>{
 
-  return { region };
+
+  if(selectedDest != null){
+    const resultPostalCode = selectedDest.POSTAL;
+
+
+    for (const area in postal_mapping) {
+      const start = Number(postal_mapping[area][0]);
+      const end = Number(postal_mapping[area][1]);
+      if (resultPostalCode >= start && resultPostalCode <= end) {
+        setSelectedRegion(area);
+        break;
+      }
+    }
+  }
+},[selectedDest]);
+ return { selectedRegion };
 };
 
 export default ConvertPostalToRegion;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect,useState } from "react";
 
 const indoorCarpark = [
   "MULTI-STOREY CAR PARK",
@@ -12,34 +12,56 @@ const recommendIndoor = [
   "Light Rain",
   "Moderate Rain",
   "Heavy Rain",
+  "Passing Showers",
   "Thundery Showers",
   "Heavy Thundery Showers",
   "Heavy Thundery Showers with Gusty Winds",
+  "Cloudy",
+  "Showers",
 ];
 
-const carparkTypeFilter = ({ weatherForecastInput, carparkInfo }) => {
-  // Check if indoor parking is required based on the weather
-  const IndoorRequired = recommendIndoor.includes(weatherForecastInput);
-  if (!IndoorRequired) {
-    return carparkInfo;
-  }
 
-  for (let i = 0; i < carparkInfo.length; i++) {
-    if (indoorCarpark.includes(carparkInfo.CARPARK_TYPE))
-      filteredParking.push(carparkInfo[i]);
-  }
-  return filteredParking;
-};
+const carparkTypeFilter = (weatherForecastInput, carparkInfo) => {
+  const [filteredParking,setFilteredParking] = useState([]); // Initialize filteredParking state
+
+  
+
+  useEffect(() => {
+    console.log("Weather Forecast Input:", weatherForecastInput);
+    // console.log("Carpark Info:", carparkInfo); 
+    if (!weatherForecastInput || !carparkInfo.length) 
+    {
+      setFilteredParking([]);
+      return;
+
+    }
+    
+    //const IndoorRequired = recommendIndoor.includes(weatherForecastInput);
+    const IndoorRequired = weatherForecastInput.sheltered_parking;
+    if (!IndoorRequired) {
+      setFilteredParking(carparkInfo); // No filter applied if the weather is not in the recommended indoor list
+      console.log("INDOOR:"+filteredParking);
+      return;
+    }
+
+    let tempList = [];
+
+    // Iterate through carparkInfo and filter for indoor car parks
+    for (let i = 0; i < carparkInfo.length; i++) {
+      if (indoorCarpark.includes(carparkInfo[i].CARPARK_TYPE)) {
+        tempList.push(carparkInfo[i]);
+      }
+    }
+
+    setFilteredParking(tempList);
+
+},[weatherForecastInput, carparkInfo]); // Add dependencies to the useEffect
+
+  return {filteredParking};
+}
 
 export default carparkTypeFilter;
 
-//SURFACE CAR PARK
-// MULTI-STOREY CAR PARK
-// BASEMENT CAR PARKSTOREY
-// SURFACE/MULTI- CAR PARK
-// COVERED CAR PARK
-// MECHANISED AND SURFACE CAR PARK
-// MECHANISED CAR PARK
 
 // Possible values for forecast include:
 // Fair

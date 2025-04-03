@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-const WeatherAPI = ({userInput}) => {
+const WeatherAPI = (userInput) => {
   const [forecast, setForecast] = useState(null);
 
   useEffect(() => {
@@ -37,6 +37,7 @@ const WeatherAPI = ({userInput}) => {
     };
 
     fetchWeather();
+
   }, [userInput]);
 
   return {forecast};

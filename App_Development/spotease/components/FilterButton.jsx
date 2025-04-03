@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Modal, Text, Pressable, StyleSheet } from 'react-native';
-import Slider from '@react-native-community/slider'; // Import the slider
+import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 
 const FilterButton = ({ filterOptions = [], onFilterSelect }) => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState({});
   const [distance, setDistance] = useState(1000); // Default: 1000 metres
 
   const toggleFilterModal = () => {
@@ -13,15 +13,14 @@ const FilterButton = ({ filterOptions = [], onFilterSelect }) => {
   };
 
   const handleFilterToggle = (filterValue) => {
-    if (selectedFilters.includes(filterValue)) {
-      setSelectedFilters(selectedFilters.filter((value) => value !== filterValue));
-    } else {
-      setSelectedFilters([...selectedFilters, filterValue]);
-    }
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [filterValue]: !prev[filterValue],
+    }));
   };
 
   const applyFilters = () => {
-    onFilterSelect({ selectedFilters, distance }); // Pass selected filters and distance
+    onFilterSelect({ ...selectedFilters, distance });
     toggleFilterModal();
   };
 
@@ -35,7 +34,7 @@ const FilterButton = ({ filterOptions = [], onFilterSelect }) => {
         visible={isFilterVisible}
         transparent={true}
         animationType="slide"
-        onRequestClose={() => setIsFilterVisible(false)}
+        onRequestClose={toggleFilterModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -46,7 +45,7 @@ const FilterButton = ({ filterOptions = [], onFilterSelect }) => {
                 key={index}
                 style={[
                   styles.filterOption,
-                  selectedFilters.includes(option.value) && styles.filterOptionSelected,
+                  selectedFilters[option.value] && styles.filterOptionSelected,
                 ]}
                 onPress={() => handleFilterToggle(option.value)}
               >
@@ -114,12 +113,6 @@ const styles = StyleSheet.create({
   filterOptionText: {
     fontSize: 16,
     color: '#FFFFFF',
-  },
-  sliderLabel: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    textAlign: 'center',
-    marginVertical: 10,
   },
   slider: {
     width: '100%',
