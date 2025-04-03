@@ -21,30 +21,31 @@ const recommendIndoor = [
 ];
 
 
-const carparkTypeFilter = (weatherForecastInput, carparkInfo) => {
+const carparkTypeFilter = (weatherForecastInput, carparkInfo,selectedFilters) => {
   const [filteredParking,setFilteredParking] = useState([]); // Initialize filteredParking state
 
   
 
   useEffect(() => {
-    console.log("Weather Forecast Input:", weatherForecastInput);
-    // console.log("Carpark Info:", carparkInfo); 
-    if (!weatherForecastInput || !carparkInfo.length) 
+    if (!weatherForecastInput || !(carparkInfo.length >0)||!selectedFilters) 
     {
       setFilteredParking([]);
       return;
 
     }
-    
-    //const IndoorRequired = recommendIndoor.includes(weatherForecastInput);
-    const IndoorRequired = weatherForecastInput.sheltered_parking;
+    let tempList = [];
+    let IndoorRequired=false;
+    if (selectedFilters.weather_parking_recommendation) IndoorRequired = recommendIndoor.includes(weatherForecastInput)
+    else if (selectedFilters.sheltered_parking) IndoorRequired = true;
+    console.log("weather:",weatherForecastInput);
+    console.log("Indoor Required:", IndoorRequired);
+
     if (!IndoorRequired) {
+      console.log("No filter applied, returning all car parks.");
       setFilteredParking(carparkInfo); // No filter applied if the weather is not in the recommended indoor list
-      console.log("INDOOR:"+filteredParking);
       return;
     }
 
-    let tempList = [];
 
     // Iterate through carparkInfo and filter for indoor car parks
     for (let i = 0; i < carparkInfo.length; i++) {
@@ -55,7 +56,7 @@ const carparkTypeFilter = (weatherForecastInput, carparkInfo) => {
 
     setFilteredParking(tempList);
 
-},[weatherForecastInput, carparkInfo]); // Add dependencies to the useEffect
+},[weatherForecastInput, carparkInfo,selectedFilters]); // Add dependencies to the useEffect
 
   return {filteredParking};
 }

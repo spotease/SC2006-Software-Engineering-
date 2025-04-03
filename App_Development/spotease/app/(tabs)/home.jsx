@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef} from "react";
 import {
   View,
   StyleSheet,
@@ -16,10 +16,12 @@ import carParkRetrieval from "../../hooks/carParkRetrieval";
 import WeatherAPI from "../../hooks/weatherAPI";
 import carparkTypeFilter from "../../hooks/carparkTypeFilter";
 import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
+import routingAPI from "../../hooks/routingAPI";
 
 
 
 const Home = () => {
+  const mapRef = useRef(null); // Create a ref for MapView
   const [selectedFilters, setSelectedFilters] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
@@ -39,26 +41,26 @@ const Home = () => {
   const [destMarker, setDestMarker] = useState({}); // Variable to store selected destination of User
   const { selectedRegion } = ConvertPostalToRegion(selectedDest);
   const {forecast} = WeatherAPI(selectedRegion);
-  //const {filteredParking} = carparkTypeFilter(forecast,sortedCarParks);
-  const {filteredParking} = carparkTypeFilter(selectedFilters,sortedCarParks);
+  const {filteredParking} = carparkTypeFilter(forecast,sortedCarParks,selectedFilters);
 
   //Starting Initialization
-  useEffect(() => {
-    // Reset all filters to false by default
-    const updatedFilters = {
-      sheltered_parking: false,  // Reset to false
-      weather_parking_recommendation: false,  // Reset to false
-    };
-    setSelectedFilters(updatedFilters); // Update the state with the new filters
-  },[]);
+  // useEffect(() => {
+  //   // Reset all filters to false by default
+  //   const updatedFilters = {
+  //     sheltered_parking: false,  // Reset to false
+  //     weather_parking_recommendation: false,  // Reset to false
+  //   };
+  //   setCarParkMarkers([]); 
+  //   setSelectedFilters(updatedFilters); // Update the state with the new filters
+  // },[]);
 
   // UseEffect to add nearby carparks to CarParkMarkers for Display
   useEffect(() => {
+    setCarParkMarkers([]); // Clear previous markers
     if(filteredParking && filteredParking.length > 0) {
-      console.log("Filtered Parking:", filteredParking);
-      setCarParkMarkers([]); // Clear previous markers
+      // console.log("Filtered Parking:", filteredParking);
       filteredParking.map((item) => {
-        console.log(item);
+        // console.log(item);
         addCarParkMarker(item);
       });
     }
@@ -79,19 +81,21 @@ const Home = () => {
         longitude: loc.coords.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
+        LATITUDE: loc.coords.latitude,
+        LONGITUDE: loc.coords.longitude,
+
       });
     })();
   }, []);
 
   const handleFilterSelect = (filters) => {
-    // Reset all filters to false by default
+        // Reset all filters to false by default
     const updatedFilters = {
       sheltered_parking: false,  // Reset to false
       weather_parking_recommendation: false,  // Reset to false
     };
     
-    // Log the updated filter values after resetting
-    console.log("selected filters:", );
+    
   
     // Update the selected filters state with the new filters object
     setSelectedFilters(updatedFilters);
@@ -109,7 +113,7 @@ const Home = () => {
 
     }
     setSelectedFilters(updatedFilters); // Update the state with the new filters
-    console.log("Selected filters:", filters);
+    console.log("Selected filters:", updatedFilters);
   };
 
   const handleDestinationPress = (item) => {
@@ -120,11 +124,27 @@ const Home = () => {
       X: item.X,
       Y: item.Y,
     };
+  
     setDestMarker(markerProperties);
     setSelectedDest(item);
     setSearchQuery("");
     console.log("Destination Selected");
+  
+    // Animate the map to the destination
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: item.LATITUDE,
+          longitude: item.LONGITUDE,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        2000 // animation duration in milliseconds
+      );
+      
+    }
   };
+  
 
   const addCarParkMarker = (item) => {
     const newMarker = {
@@ -146,6 +166,15 @@ const Home = () => {
       value: "weather_parking_recommendation",
     }, // This is just an example, you can adjust the labels accordingly.
   ];
+
+  //TESTING PURPOSES ONLY
+  const handleCarParkMarkerPress = (carpark) => {
+    console.log("Carpark selected:", carpark);
+    setSelectedCP(carpark); // ✅ Store full carpark object if needed
+    // You can also navigate, show modal, etc.
+
+    routingAPI(location,selectedCP);
+  };
   
 
   return (
@@ -168,19 +197,21 @@ const Home = () => {
         </FilterButton>
       </View>
 
-      <MapView
-        style={styles.map}
-        region={
-          location || {
-            latitude: 1.3521, // Default: Singapore if current location is denied
-            longitude: 103.8198,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
+        <MapView
+          ref={mapRef} // Attach ref here
+          style={styles.map}
+          region={
+            location || {
+              latitude: 1.3521,
+              longitude: 103.8198,
+              latitudeDelta: 0.1,
+              longitudeDelta: 0.1,
+            }
           }
-        }
-        showsUserLocation={true}
-        showsMyLocationButton={true}
-      >
+          showsUserLocation={true}
+          showsMyLocationButton={true}
+        >
+
         {/*Destination Marker*/}
         {destMarker.LATITUDE && destMarker.LONGITUDE && (
           <Marker
@@ -201,6 +232,7 @@ const Home = () => {
               title={item.ADDRESS}
               description={`Lat: ${item.LATITUDE}, Lng: ${item.LONGITUDE}`}
               pinColor="blue" // Car parks are marked in red
+              onPress={() => handleCarParkMarkerPress(item)}
             />
           ))}
       </MapView>
