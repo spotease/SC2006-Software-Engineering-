@@ -4,12 +4,11 @@ import calculateDistance from "./calculateDistanceXY";
 import ConvertCoords from "./ConvertCoords";
 import retrieveLotsAPI from "./retrieveLotsAPI";
 
-/* Return Values are sortedCarParks, readyCPFlag */
+/* Return Values are sortedCarParks*/
 const carParkRetrieval = (selectedDestination, filterRadius) => {
   //State Variables
   const [carParks, setCarParks] = useState([]);
   const [sortedCarParks, setSortedCarParks] = useState([]);
-  const [readyCPFlag, setReadyCPFlag] = useState(false);
   const [lotsData, setLotsData] = useState([]);
   const API_URL = `https://sc2006-backend-spotease.onrender.com/carpark/carParkRetrieval`;
 
@@ -18,7 +17,6 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   const handleRetrieval = async () => {
     if (isBusy.current) return;
     isBusy.current = true;
-    setReadyCPFlag(false);
     if (!selectedDestination || selectedDestination.X == undefined) {
       setCarParks([]);
       isBusy.current = false;
@@ -99,7 +97,6 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
         );
         setSortedCarParks(sorted);
         // console.log(sortedCarParks);
-        setReadyCPFlag(true);
       }
     } catch (error) {
       console.log("Error: ", error);
@@ -117,7 +114,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   useEffect(() => {
     processCarParks();
   }, [carParks, lotsData]);
-  return { sortedCarParks, readyCPFlag };
+  return { sortedCarParks };
 };
 
 export default carParkRetrieval;
