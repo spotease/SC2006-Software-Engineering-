@@ -42,31 +42,28 @@ const Home = () => {
   //const {filteredParking} = carparkTypeFilter(forecast,sortedCarParks);
   const {filteredParking} = carparkTypeFilter(selectedFilters,sortedCarParks);
 
-
-
-  // useEffect(() => {
-  //   if (readyCPFlag && sortedCarParks) {
-  //     // console.log("Test 2:");
-  //     // console.log(sortedCarParks);
-  //     setMapMarkers([]); // Clear previous markers
-  //     sortedCarParks.map((item) => {
-  //       // console.log(item);
-  //       //addMarker(item);
-  //     });
-  //   }
-  // }, [readyCPFlag]);
+  //Starting Initialization
+  useEffect(() => {
+    // Reset all filters to false by default
+    const updatedFilters = {
+      sheltered_parking: false,  // Reset to false
+      weather_parking_recommendation: false,  // Reset to false
+    };
+    setSelectedFilters(updatedFilters); // Update the state with the new filters
+  },[]);
 
   // UseEffect to add nearby carparks to CarParkMarkers for Display
   useEffect(() => {
     if(filteredParking && filteredParking.length > 0) {
       console.log("Filtered Parking:", filteredParking);
-      setMapMarkers([]); // Clear previous markers
+      setCarParkMarkers([]); // Clear previous markers
       filteredParking.map((item) => {
         // console.log(item);
         addCarParkMarker(item);
       });
     }
   },[filteredParking]);
+
   // Get current location when the app loads
   useEffect(() => {
     (async () => {
@@ -91,19 +88,27 @@ const Home = () => {
     const updatedFilters = {
       sheltered_parking: false,  // Reset to false
       weather_parking_recommendation: false,  // Reset to false
-      ...filters,  // Spread the incoming filters to apply the selected filter
     };
-  
+    
     // Log the updated filter values after resetting
-    console.log("selected filters:", updatedFilters);
+    console.log("selected filters:", );
   
     // Update the selected filters state with the new filters object
     setSelectedFilters(updatedFilters);
   
     // If distance is set, adjust the filter radius
-    if (updatedFilters.distance != undefined) {
-      setFilterRadius(updatedFilters.distance / 2);
+    if (filters.distance != undefined) {
+      setFilterRadius(filters.distance / 2);
     }
+
+    if(filters.sheltered_parking){
+      updatedFilters.sheltered_parking = true;
+    }
+    if(filters.weather_parking_recommendation){
+      updatedFilters.weather_parking_recommendation = true;
+
+    }
+    setSelectedFilters(updatedFilters); // Update the state with the new filters
     console.log("Selected filters:", filters);
   };
 
@@ -123,7 +128,7 @@ const Home = () => {
 
   const addCarParkMarker = (item) => {
     const newMarker = {
-      id: mapMarkers.length + 1,
+      id: carParkMarkers.length + 1,
       ADDRESS: item.ADDRESS,
       LATITUDE: item.LATITUDE,
       LONGITUDE: item.LONGITUDE,
