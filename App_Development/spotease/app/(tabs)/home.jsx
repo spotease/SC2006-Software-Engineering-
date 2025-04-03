@@ -24,17 +24,19 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const { searchResults, loadingFlag } = searchAPI(searchQuery);
+  const { searchResults, loadingFlag } = searchAPI(searchQuery); // Variable to store searchResults from User Input
 
-  const [selectedDest, setSelectedDest] = useState(null);
-  const [filterRadius, setFilterRadius] = useState(100);
+  const [selectedDest, setSelectedDest] = useState(null); // Variable to store Destination of User
+  const [selectedCP, setSelectedCP] = useState(null); // Variable to store Selected Carpark of User
+  const [filterRadius, setFilterRadius] = useState(1000 / 2); // Variable to store Filter Distance in (m)
   const { sortedCarParks, readyCPFlag } = carParkRetrieval(
+    //Variable to store nearby Carparks sorted by nearest distance
     selectedDest,
     filterRadius
   );
 
-  const [mapMarkers, setMapMarkers] = useState([]);
-  const [destMarker, setDestMarker] = useState({});
+  const [carParkMarkers, setCarParkMarkers] = useState([]); // Variable to store nearby Carpark Markers
+  const [destMarker, setDestMarker] = useState({}); // Variable to store selected destination of User
   const { selectedRegion } = ConvertPostalToRegion(selectedDest);
   const {forecast} = WeatherAPI(selectedRegion);
   //const {filteredParking} = carparkTypeFilter(forecast,sortedCarParks);
@@ -54,13 +56,14 @@ const Home = () => {
   //   }
   // }, [readyCPFlag]);
 
+  // UseEffect to add nearby carparks to CarParkMarkers for Display
   useEffect(() => {
     if(filteredParking && filteredParking.length > 0) {
       console.log("Filtered Parking:", filteredParking);
       setMapMarkers([]); // Clear previous markers
       filteredParking.map((item) => {
         // console.log(item);
-        addMarker(item);
+        addCarParkMarker(item);
       });
     }
   },[filteredParking]);
@@ -101,24 +104,8 @@ const Home = () => {
     if (updatedFilters.distance != undefined) {
       setFilterRadius(updatedFilters.distance / 2);
     }
-  
-    // Handle Sheltered Parking filter logic
-    if (updatedFilters.sheltered_parking) {
-      console.log("Sheltered parking filter selected");
-      // Implement sheltered parking filtering logic
-      
-    }
-  
-    // Handle Weather Parking Recommendation filter logic
-    if (updatedFilters.weather_parking_recommendation) {
-      console.log("Weather parking recommendation filter selected");
-      console.log(selectedRegion);
-      console.log(forecast);
-
-    }
+    console.log("Selected filters:", filters);
   };
-  
-  
 
   const handleDestinationPress = (item) => {
     const markerProperties = {
@@ -134,8 +121,7 @@ const Home = () => {
     console.log("Destination Selected");
   };
 
-  const addMarker = (item) => {
-    console.log("Adding marker:", item.ADDRESS);
+  const addCarParkMarker = (item) => {
     const newMarker = {
       id: mapMarkers.length + 1,
       ADDRESS: item.ADDRESS,
@@ -145,7 +131,7 @@ const Home = () => {
       Y: item.Y,
     };
 
-    setMapMarkers((prevMapMarkers) => [...prevMapMarkers, newMarker]);
+    setCarParkMarkers((prevCarParkMarkers) => [...prevCarParkMarkers, newMarker]);
   };
 
   const filterOptions = [
@@ -200,7 +186,7 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
-        {mapMarkers.map((item, index) => (
+        {carParkMarkers.map((item, index) => (
             <Marker
               key={index}
               coordinate={{
