@@ -58,7 +58,7 @@ const Home = () => {
       console.log("Filtered Parking:", filteredParking);
       setCarParkMarkers([]); // Clear previous markers
       filteredParking.map((item) => {
-        // console.log(item);
+        console.log(item);
         addCarParkMarker(item);
       });
     }
