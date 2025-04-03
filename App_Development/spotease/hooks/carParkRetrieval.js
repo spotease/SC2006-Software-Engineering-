@@ -49,6 +49,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   };
 
   const processCarParks = async () => {
+    setSortedCarParks([]);
     if (isBusy.current) return;
     isBusy.current = true;
     try {
