@@ -1,13 +1,12 @@
-import { Text, StyleSheet } from "react-native";
-import React from "react";
-import { Tabs } from "expo-router";
+import { Text, StyleSheet, Alert } from "react-native";
+import { Tabs, useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 import { Colors } from "./../../constants/Colors";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TABS = [
-  //{ name: 'home', label: 'Home', icon: (color) => <AntDesign name="home" size={24} color={color} /> },
   {
     name: "home",
     label: "Home",
@@ -26,13 +25,37 @@ const TABS = [
     ),
   },
   {
-    name: "homeTest",
-    label: "Testing Page",
-    icon: (color) => <Octicons name="checklist" size={24} color={color} />,
+    name: "logout", // This will be our action tab
+    label: "Logout",
+    icon: (color) => <MaterialIcons name="logout" size={24} color={color} />,
+    isAction: true // Flag to identify this as an action tab
   },
 ];
 
 export default function TabLayout() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Log Out",
+          onPress: async () => {
+            await AsyncStorage.clear();
+            router.replace('/login');
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
   return (
     <Tabs
       screenOptions={{
@@ -42,10 +65,18 @@ export default function TabLayout() {
         tabBarInactiveTintColor: "#888",
       }}
     >
-      {TABS.map(({ name, label, icon }) => (
+      {TABS.map(({ name, label, icon, isAction }) => (
         <Tabs.Screen
           key={name}
           name={name}
+          listeners={{
+            tabPress: (e) => {
+              if (name === "logout") {
+                e.preventDefault(); // Prevent default navigation
+                handleLogout();
+              }
+            }
+          }}
           options={{
             tabBarLabel: ({ focused, color }) => (
               <Text
@@ -66,7 +97,7 @@ export default function TabLayout() {
   );
 }
 
-// 🎨 Styles
+// 🎨 Styles (keep your existing styles)
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: Colors.backgroundColour,
