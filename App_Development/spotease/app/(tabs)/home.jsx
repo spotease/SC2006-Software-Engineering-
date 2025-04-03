@@ -16,6 +16,7 @@ import carParkRetrieval from "../../hooks/carParkRetrieval";
 import WeatherAPI from "../../hooks/weatherAPI";
 import carparkTypeFilter from "../../hooks/carparkTypeFilter";
 import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
+import routingAPI from "../../hooks/routingAPI";
 
 
 
@@ -80,6 +81,9 @@ const Home = () => {
         longitude: loc.coords.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
+        LATITUDE: loc.coords.latitude,
+        LONGITUDE: loc.coords.longitude,
+
       });
     })();
   }, []);
@@ -162,6 +166,15 @@ const Home = () => {
       value: "weather_parking_recommendation",
     }, // This is just an example, you can adjust the labels accordingly.
   ];
+
+  //TESTING PURPOSES ONLY
+  const handleCarParkMarkerPress = (carpark) => {
+    console.log("Carpark selected:", carpark);
+    setSelectedCP(carpark); // ✅ Store full carpark object if needed
+    // You can also navigate, show modal, etc.
+
+    routingAPI(location,selectedCP);
+  };
   
 
   return (
@@ -219,6 +232,7 @@ const Home = () => {
               title={item.ADDRESS}
               description={`Lat: ${item.LATITUDE}, Lng: ${item.LONGITUDE}`}
               pinColor="blue" // Car parks are marked in red
+              onPress={() => handleCarParkMarkerPress(item)}
             />
           ))}
       </MapView>
