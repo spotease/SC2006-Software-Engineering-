@@ -2,26 +2,32 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList } from "react
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import reverseGeocode from "../hooks/reverseGeocode";
-import { useEffect,useState } from "react";
-import WeatherAPI from "../hooks/weatherAPI"; // Import the weather API utility
+import { weatherAPI } from "../hooks/weatherAPI";
 import ConvertPostalToRegion from "../hooks/convertPostalToRegion";
 import fetchLocationHistory from "../hooks/fetchLocationHistory";
 import * as Location from "expo-location";
 
 export default function BeforeHome() {
-  // Mock data
-  const searchHistory = ["Marina Barrage", "Marina Bay Sands", "Marina Square", "Choa Chu Kang", "Jurong Point"];
-  const savedLocations = ["Level 6, Block B", "Level 7, Block C", "Level 1, Block A"];  // Helper component to render items without border on last one
-  const [AddressNearby, setAddressNearby] = useState(null); // State to store the address nearby
-  // const {selectedRegion} = ConvertPostalToRegion(AddressNearby); // Call the function to convert postal code to region
-  // const {forecast} = WeatherAPI(selectedRegion);
-  const renderItem = ({ item }) => (
-    <View style={styles.itemInBox}>
-      <Text style={styles.boxText}>{item}</Text>
-    </View>
-  );
+  const [searchHistory, setSearchHistory] = useState([]);
 
-  
+  // Fetch search history on mount
+  useEffect(() => {
+    const getLocationHistory = async () => {
+      try {
+        const data = await fetchLocationHistory();
+        if (data?.history?.length) {
+          const flattened = data.history.map(item => item.locationAddress);
+          setSearchHistory(flattened.slice(0, 5)); // Display recent 5 for example
+        } else {
+          setSearchHistory([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch history:", error);
+      }
+    };
+
+    getLocationHistory();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -29,12 +35,10 @@ export default function BeforeHome() {
       if (status !== "granted") return;
 
       let loc = await Location.getCurrentPositionAsync({});
-      
-      AddressNearby = await reverseGeocode(loc.coords.latitude, loc.coords.longitude);
-      setAddressNearby(AddressNearby);
+      let AddressNearby = await reverseGeocode(loc.coords.latitude, loc.coords.longitude);
 
-      // const {selectedRegion} = ConvertPostalToRegion(AddressNearby[0].POSTAL); // Call the function to convert postal code to region
-      //let Region = ConvertPostalToRegion(AddressNearby[0].POSTAL); // Convert postal code to region
+      const { selectedRegion } = ConvertPostalToRegion(AddressNearby[0].POSTAL);
+      let forecastWeather = weatherAPI(selectedRegion);
     })();
   }, []);
 
