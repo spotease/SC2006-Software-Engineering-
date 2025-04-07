@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#6694FF',
     borderRadius: 10,
     marginBottom: 20,
-    maxHeight: 115,
+    maxHeight: 400,
   },
   itemInBox: {
     paddingVertical: 10,
