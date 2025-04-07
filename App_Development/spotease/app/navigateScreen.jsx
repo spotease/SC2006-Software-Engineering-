@@ -205,6 +205,20 @@ export default function NavigateScreen() {
 
         {/* Destination Marker */}
         <Marker coordinate={destination} pinColor="red" />
+
+        {/* User Direction Indicator */}
+        <Marker
+          coordinate={{
+            latitude: currentLocation.coords.latitude,
+            longitude: currentLocation.coords.longitude,
+          }}
+          rotation={heading}
+          anchor={{ x: 0.5, y: 0.5 }}
+        >
+          <View style={styles.arrow}>
+            <Text style={styles.arrowText}>↑</Text>
+          </View>
+        </Marker>
       </MapView>
 
       {/* Step-by-step instructions */}
@@ -240,6 +254,15 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  arrow: {
+    backgroundColor: '#FFFFFFB3',
+    borderRadius: 20,
+    padding: 5,
+  },
+  arrowText: {
+    fontSize: 20,
+    color: 'blue',
   },
   directionsHeader: {
     fontWeight: 'bold',
