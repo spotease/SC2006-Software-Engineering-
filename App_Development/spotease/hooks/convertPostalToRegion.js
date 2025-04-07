@@ -127,9 +127,8 @@ const ConvertPostalToRegion = (selectedDest) => {
 
 
   if(selectedDest != null){
+    console.log(selectedDest);
     const resultPostalCode = selectedDest.POSTAL;
-
-
     for (const area in postal_mapping) {
       const start = Number(postal_mapping[area][0]);
       const end = Number(postal_mapping[area][1]);
