@@ -88,8 +88,6 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
             X: item.x_coord,
             Y: item.y_coord,
             CARPARK_INFO: carpark_info,
-            LOTS_AVAILABLE: carpark_info[0].lots_available,
-            TOTAL_LOTS: carpark_info[0].total_lots,
             UPDATETIME: updatetime,
             DISTANCEAWAY: distance,
           };
