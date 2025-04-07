@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ConvertCoords from "./ConvertCoords";
 //Custom Hook for fetching search results
 const searchAPI = (userInput) => {
@@ -7,8 +7,12 @@ const searchAPI = (userInput) => {
   const [searchResults, setSearchResults] = useState([]);
   const [loadingFlag, setLoadingFlag] = useState(false);
 
+  const isBusy = useRef(false);
   //Fetch Function
   const fetchSearch = async () => {
+    if (isBusy.current) return;
+    isBusy.current = true;
+
     try {
       const baseURL = "https://www.onemap.gov.sg/api/common/elastic/search?";
       const params = new URLSearchParams({
@@ -38,6 +42,7 @@ const searchAPI = (userInput) => {
       console.error(error);
     } finally {
       setLoadingFlag(false); // Set loading flag to false
+      isBusy.current = false;
     }
   };
 
@@ -54,6 +59,8 @@ const searchAPI = (userInput) => {
   }, [userInput]);
 
   useEffect(() => {
+    if (isBusy.current) return;
+    isBusy.current = true;
     if (retrieveSearch && retrieveSearch.results) {
       const slicedResults = retrieveSearch.results.slice(0, 5); // Slice the first 5 results
       const processing = slicedResults.map((result) => {
@@ -76,6 +83,7 @@ const searchAPI = (userInput) => {
     } else {
       setSearchResults([]);
     }
+    isBusy.current = false;
   }, [retrieveSearch]);
   return { searchResults, loadingFlag };
 };
