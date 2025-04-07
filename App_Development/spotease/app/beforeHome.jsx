@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList } from "react-native";
 import { Link } from "expo-router";
 import reverseGeocode from "../hooks/reverseGeocode";
-import { useEffect } from "react";
-import {weatherAPI} from "../hooks/weatherAPI"; // Import the weather API utility
+import { useEffect,useState } from "react";
+import WeatherAPI from "../hooks/weatherAPI"; // Import the weather API utility
 import ConvertPostalToRegion from "../hooks/convertPostalToRegion";
 import * as Location from "expo-location";
 
@@ -11,6 +11,9 @@ export default function BeforeHome() {
   // Mock data
   const searchHistory = ["Marina Barrage", "Marina Bay Sands", "Marina Square", "Choa Chu Kang", "Jurong Point"];
   const savedLocations = ["Level 6, Block B", "Level 7, Block C", "Level 1, Block A"];  // Helper component to render items without border on last one
+  const [AddressNearby, setAddressNearby] = useState(null); // State to store the address nearby
+  // const {selectedRegion} = ConvertPostalToRegion(AddressNearby); // Call the function to convert postal code to region
+  // const {forecast} = WeatherAPI(selectedRegion);
   const renderItem = ({ item }) => (
     <View style={styles.itemInBox}>
       <Text style={styles.boxText}>{item}</Text>
@@ -29,14 +32,11 @@ export default function BeforeHome() {
 
       let loc = await Location.getCurrentPositionAsync({});
       
-      let AddressNearby = await reverseGeocode(loc.coords.latitude, loc.coords.longitude);
-      
-      console.log("ENTRY");
-      const {selectedRegion} = ConvertPostalToRegion(AddressNearby[0].POSTAL); // Call the function to convert postal code to region
+      AddressNearby = await reverseGeocode(loc.coords.latitude, loc.coords.longitude);
+      setAddressNearby(AddressNearby);
+
+      // const {selectedRegion} = ConvertPostalToRegion(AddressNearby[0].POSTAL); // Call the function to convert postal code to region
       //let Region = ConvertPostalToRegion(AddressNearby[0].POSTAL); // Convert postal code to region
-      console.log("EXIT");
-      console.log(Region); // Log the region for debugging
-      let forecastWeather = weatherAPI(Region); // Call the weather API with the postal code
     })();
   }, []);
 

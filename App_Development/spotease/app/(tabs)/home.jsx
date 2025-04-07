@@ -17,28 +17,23 @@ import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
 
 
 const Home = () => {
+  let [filteredParking] = [];
   const mapRef = useRef(null); // Create a ref for MapView
   const [selectedFilters, setSelectedFilters] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery); // Variable to store searchResults from User Input
-
   const [selectedDest, setSelectedDest] = useState(null); // Variable to store Destination of User
-  const [selectedCP, setSelectedCP] = useState(null); // Variable to store Selected Carpark of User
   const [filterRadius, setFilterRadius] = useState(1000 / 2); // Variable to store Filter Distance in (m)
-  const { sortedCarParks, readyCPFlag } = carParkRetrieval(
+  const { sortedCarParks } = carParkRetrieval(
     //Variable to store nearby Carparks sorted by nearest distance
     selectedDest,
     filterRadius
   );
-
   const [carParkMarkers, setCarParkMarkers] = useState([]); // Variable to store nearby Carpark Markers
   const [destMarker, setDestMarker] = useState({}); // Variable to store selected destination of User
-  const { selectedRegion } = ConvertPostalToRegion(selectedDest);
-  const {forecast} = WeatherAPI(selectedRegion);
-  const {filteredParking} = carparkTypeFilter(forecast,sortedCarParks,selectedFilters);
 
+  
   //Starting Initialization
   // useEffect(() => {
   //   // Reset all filters to false by default
@@ -50,17 +45,26 @@ const Home = () => {
   //   setSelectedFilters(updatedFilters); // Update the state with the new filters
   // },[]);
 
-  // UseEffect to add nearby carparks to CarParkMarkers for Display
   useEffect(() => {
-    setCarParkMarkers([]); // Clear previous markers
-    if(filteredParking && filteredParking.length > 0) {
-      // console.log("Filtered Parking:", filteredParking);
-      filteredParking.map((item) => {
-        // console.log(item);
-        addCarParkMarker(item);
-      });
+    const populateCPMarkers = async() => {
+      let region = ConvertPostalToRegion(selectedDest.POSTAL);
+      let forecastResult = await WeatherAPI(region);
+      filteredParking = carparkTypeFilter(forecastResult,sortedCarParks,selectedFilters);
+      console.log("Region",region);
+      console.log("Forecast Result:", forecastResult);
+      console.log("Filtered Parking:", filteredParking);
+
+      setCarParkMarkers([]); // Clear previous markers
+      if(filteredParking && filteredParking.length > 0) {
+        // console.log("Filtered Parking:", filteredParking);
+        filteredParking.map((item) => {
+          //console.log(item);
+          addCarParkMarker(item);
+        });
+      }
     }
-  },[filteredParking]);
+    populateCPMarkers();
+  },[sortedCarParks,selectedFilters]); // Add dependencies to the useEffect
 
   // Get current location when the app loads
   useEffect(() => {
@@ -84,7 +88,7 @@ const Home = () => {
     })();
   }, []);
 
-  const handleFilterSelect = (filters) => {
+  const handleFilterSelect = async (filters) => {
         // Reset all filters to false by default
     const updatedFilters = {
       sheltered_parking: false,  // Reset to false
@@ -99,6 +103,7 @@ const Home = () => {
     // If distance is set, adjust the filter radius
     if (filters.distance != undefined) {
       setFilterRadius(filters.distance / 2);
+
     }
 
     if(filters.sheltered_parking){
@@ -140,7 +145,6 @@ const Home = () => {
       
     }
   };
-  
 
   const addCarParkMarker = (item) => {
     const newMarker = {
@@ -168,16 +172,6 @@ const Home = () => {
       value: "weather_parking_recommendation",
     }, // This is just an example, you can adjust the labels accordingly.
   ];
-
-  //TESTING PURPOSES ONLY
-  const handleCarParkMarkerPress = (carpark) => {
-    console.log("Carpark selected:", carpark);
-    setSelectedCP(carpark); // ✅ Store full carpark object if needed
-    // You can also navigate, show modal, etc.
-
-   // routingAPI(location,selectedCP);
-  };
-  
 
   return (
     <View style={styles.container}>

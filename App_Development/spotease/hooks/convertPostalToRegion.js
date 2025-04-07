@@ -98,48 +98,64 @@ const postal_mapping = {
   Sembawang: ["750000", "759999"],
 };
 
-const ConvertPostalToRegion = (selectedDest) => {
-  const [selectedRegion, setSelectedRegion] = useState(""); // To store the region
-  /*
-  const { searchResults, loadingFlag } = searchAPI(userInput); // Fetching data with searchAPI hook using userInput
+const ConvertPostalToRegion = (selectedPOSTAL) => {
+  let resultPostalCode = selectedPOSTAL;
 
-  // Effect to update postal code when search results are available
-  useEffect(() => {
-    if (searchResults && searchResults.length >= 1 && !loadingFlag) {
-      // Assuming you want to take the first result's postal code
-      const resultPostalCode = searchResults[0].POSTAL;
-      console.log(searchResults);
-      // console.log(resultPostalCode);
-
-      for (const area in postal_mapping) {
-        const start = Number(postal_mapping[area][0]);
-        const end = Number(postal_mapping[area][1]);
-        if (resultPostalCode >= start && resultPostalCode <= end) {
-          setRegion(area);
-          console.log(region);
-          break;
-        }
-      }
-    }
-  }, [searchResults]);
-  */
- useEffect(()=>{
-
-
-  if(selectedDest != null){
-    console.log(selectedDest);
-    const resultPostalCode = selectedDest.POSTAL;
-    for (const area in postal_mapping) {
-      const start = Number(postal_mapping[area][0]);
-      const end = Number(postal_mapping[area][1]);
-      if (resultPostalCode >= start && resultPostalCode <= end) {
-        setSelectedRegion(area);
-        break;
-      }
+  for (const area in postal_mapping) {
+    const start = Number(postal_mapping[area][0]);
+    const end = Number(postal_mapping[area][1]);
+    if (resultPostalCode >= start && resultPostalCode <= end) {
+      console.log("hello");
+      return area;
     }
   }
-},[selectedDest]);
- return { selectedRegion };
-};
+
+
+}
+
 
 export default ConvertPostalToRegion;
+//   const [selectedRegion, setSelectedRegion] = useState(""); // To store the region
+//   /*
+//   const { searchResults, loadingFlag } = searchAPI(userInput); // Fetching data with searchAPI hook using userInput
+
+//   // Effect to update postal code when search results are available
+//   useEffect(() => {
+//     if (searchResults && searchResults.length >= 1 && !loadingFlag) {
+//       // Assuming you want to take the first result's postal code
+//       const resultPostalCode = searchResults[0].POSTAL;
+//       console.log(searchResults);
+//       // console.log(resultPostalCode);
+
+//       for (const area in postal_mapping) {
+//         const start = Number(postal_mapping[area][0]);
+//         const end = Number(postal_mapping[area][1]);
+//         if (resultPostalCode >= start && resultPostalCode <= end) {
+//           setRegion(area);
+//           console.log(region);
+//           break;
+//         }
+//       }
+//     }
+//   }, [searchResults]);
+//   */
+//  useEffect(()=>{
+
+
+//   if(selectedPOSTAL != null){
+//     console.log(selectedPOSTAL);
+//     const resultPostalCode = selectedPOSTAL;
+//     for (const area in postal_mapping) {
+//       const start = Number(postal_mapping[area][0]);
+//       const end = Number(postal_mapping[area][1]);
+//       if (resultPostalCode >= start && resultPostalCode <= end) {
+//         setSelectedRegion(area);
+//         break;
+//       }
+//     }
+//   }
+// },[selectedPOSTAL]);
+//  return { selectedRegion };
+// };
+
+// export default ConvertPostalToRegion;

@@ -22,18 +22,11 @@ const recommendIndoor = [
 
 
 const carparkTypeFilter = (weatherForecastInput, carparkInfo,selectedFilters) => {
-  const [filteredParking,setFilteredParking] = useState([]); // Initialize filteredParking state
+  console.log("carparkInfo:",carparkInfo);
+  console.log("selectedFilters:",selectedFilters);
+    if (!weatherForecastInput || !(carparkInfo.length >0)||!selectedFilters) return;
 
-  
-
-  useEffect(() => {
-    if (!weatherForecastInput || !(carparkInfo.length >0)||!selectedFilters) 
-    {
-      setFilteredParking([]);
-      return;
-
-    }
-    let tempList = [];
+    let IndoorCarparkList = [];
     let IndoorRequired=false;
     if (selectedFilters.sheltered_parking) IndoorRequired = true;
     else if (selectedFilters.weather_parking_recommendation) IndoorRequired = recommendIndoor.includes(weatherForecastInput)
@@ -42,24 +35,56 @@ const carparkTypeFilter = (weatherForecastInput, carparkInfo,selectedFilters) =>
 
     if (!IndoorRequired) {
       console.log("No filter applied, returning all car parks.");
-      setFilteredParking(carparkInfo); // No filter applied if the weather is not in the recommended indoor list
-      return;
+      return carparkInfo;
     }
 
 
     // Iterate through carparkInfo and filter for indoor car parks
     for (let i = 0; i < carparkInfo.length; i++) {
       if (indoorCarpark.includes(carparkInfo[i].CARPARK_TYPE)) {
-        tempList.push(carparkInfo[i]);
+        IndoorCarparkList.push(carparkInfo[i]);
       }
     }
 
-    setFilteredParking(tempList);
-
-},[weatherForecastInput, carparkInfo,selectedFilters]); // Add dependencies to the useEffect
-
-  return {filteredParking};
+    return IndoorCarparkList;
 }
+
+  
+
+//   useEffect(() => {
+//     if (!weatherForecastInput || !(carparkInfo.length >0)||!selectedFilters) 
+//     {
+//       setFilteredParking([]);
+//       return;
+
+//     }
+//     let tempList = [];
+//     let IndoorRequired=false;
+//     if (selectedFilters.sheltered_parking) IndoorRequired = true;
+//     else if (selectedFilters.weather_parking_recommendation) IndoorRequired = recommendIndoor.includes(weatherForecastInput)
+//     console.log("weather:",weatherForecastInput);
+//     console.log("Indoor Required:", IndoorRequired);
+
+//     if (!IndoorRequired) {
+//       console.log("No filter applied, returning all car parks.");
+//       setFilteredParking(carparkInfo); // No filter applied if the weather is not in the recommended indoor list
+//       return;
+//     }
+
+
+//     // Iterate through carparkInfo and filter for indoor car parks
+//     for (let i = 0; i < carparkInfo.length; i++) {
+//       if (indoorCarpark.includes(carparkInfo[i].CARPARK_TYPE)) {
+//         tempList.push(carparkInfo[i]);
+//       }
+//     }
+
+//     setFilteredParking(tempList);
+
+// },[weatherForecastInput, carparkInfo,selectedFilters]); // Add dependencies to the useEffect
+
+//   return {filteredParking};
+// }
 
 export default carparkTypeFilter;
 
