@@ -1,14 +1,9 @@
 import React, { useState, useEffect,useRef} from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import {View, StyleSheet, FlatList, Text, TouchableOpacity} from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
+import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import searchAPI from "../../hooks/searchAPI";
 import * as Location from "expo-location";
@@ -16,7 +11,8 @@ import carParkRetrieval from "../../hooks/carParkRetrieval";
 import WeatherAPI from "../../hooks/weatherAPI";
 import carparkTypeFilter from "../../hooks/carparkTypeFilter";
 import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
-import routingAPI from "../../hooks/routingAPI";
+// import routingAPI from "../../hooks/routingAPI";
+
 
 
 
@@ -154,6 +150,12 @@ const Home = () => {
       LONGITUDE: item.LONGITUDE,
       X: item.X,
       Y: item.Y,
+      CARPARK_NO: item.CARPARK_NO,
+      CARPARK_TYPE: item.CARPARK_TYPE,
+      CARPARK_INFO: item.CARPARK_INFO,
+      DISTANCEAWAY: item.DISTANCEAWAY,
+      LOTS_AVAILABLE: item.LOTS_AVAILABLE,
+      TOTAL_LOTS: item.TOTAL_LOTS
     };
 
     setCarParkMarkers((prevCarParkMarkers) => [...prevCarParkMarkers, newMarker]);
@@ -173,7 +175,7 @@ const Home = () => {
     setSelectedCP(carpark); // ✅ Store full carpark object if needed
     // You can also navigate, show modal, etc.
 
-    routingAPI(location,selectedCP);
+   // routingAPI(location,selectedCP);
   };
   
 
@@ -222,17 +224,30 @@ const Home = () => {
           ></Marker>
         )}
         {/* You can customize the marker */}
-        {carParkMarkers.map((item, index) => (
+        {carParkMarkers.map((item) => (
             <Marker
-              key={index}
+              key={item.CARPARK_NO}
               coordinate={{
                 latitude: item.LATITUDE,
                 longitude: item.LONGITUDE,
               }}
-              title={item.ADDRESS}
-              description={`Lat: ${item.LATITUDE}, Lng: ${item.LONGITUDE}`}
-              pinColor="blue" // Car parks are marked in red
-              onPress={() => handleCarParkMarkerPress(item)}
+              pinColor="blue" // Car parks are marked in blue
+              onPress={() => {
+                handleCarParkMarkerPress(item); 
+
+                router.push({
+                  pathname: "/carParkDetails",
+                  params: {
+                    lotsavailable: item.LOTS_AVAILABLE,
+                    address: item.ADDRESS,
+                    totallots: item.TOTAL_LOTS,
+                    carparktype: item.CARPARK_TYPE,
+                    distanceaway: item.DISTANCEAWAY,
+                    lat: item.LATITUDE,
+                    lng: item.LONGITUDE,
+                  }
+                });
+              }}
             />
           ))}
       </MapView>
@@ -300,22 +315,22 @@ const styles = StyleSheet.create({
   },
   carParkAddress: {
     fontSize: 14,
-    color: "#4B0082",
+    color: "#E0E0E0",
   },
   box: {
     borderWidth: 1,
     borderRadius: 8,
     padding: 12,
-    backgroundColor: "#A4D200",
-    borderColor: "#A4D200",
+    backgroundColor: "#5C6BC0",
+    borderColor: "#5C6BC0",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
   },
 });
 
-export default Home;
+export default Home; 
