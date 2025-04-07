@@ -136,7 +136,7 @@ const Home = () => {
         y_coor: item.Y,
       },
       locationAddress: item.ADDRESS,
-      locationType: "search", // or "destination", whatever makes sense
+      locationType: "destination",
     });
   
     // Animate the map to the destination
