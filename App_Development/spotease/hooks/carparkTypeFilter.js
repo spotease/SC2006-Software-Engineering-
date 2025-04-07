@@ -35,8 +35,8 @@ const carparkTypeFilter = (weatherForecastInput, carparkInfo,selectedFilters) =>
     }
     let tempList = [];
     let IndoorRequired=false;
-    if (selectedFilters.weather_parking_recommendation) IndoorRequired = recommendIndoor.includes(weatherForecastInput)
-    else if (selectedFilters.sheltered_parking) IndoorRequired = true;
+    if (selectedFilters.sheltered_parking) IndoorRequired = true;
+    else if (selectedFilters.weather_parking_recommendation) IndoorRequired = recommendIndoor.includes(weatherForecastInput)
     console.log("weather:",weatherForecastInput);
     console.log("Indoor Required:", IndoorRequired);
 
