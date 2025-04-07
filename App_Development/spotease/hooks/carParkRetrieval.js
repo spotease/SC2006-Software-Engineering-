@@ -58,11 +58,13 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
           const carparkInfo = lotsData.find(
             (cp) => cp.carpark_number === item.car_park_no
           );
-          let carpark_info = {
-            lot_type: NaN,
-            lots_available: NaN,
-            total_lots: NaN,
-          };
+          let carpark_info = [
+            {
+              lot_type: NaN,
+              lots_available: NaN,
+              total_lots: NaN,
+            },
+          ];
           let updatetime = NaN;
           if (carparkInfo !== undefined) {
             carpark_info = carparkInfo.carpark_info;
