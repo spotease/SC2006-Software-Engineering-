@@ -11,6 +11,7 @@ import carParkRetrieval from "../../hooks/carParkRetrieval";
 import WeatherAPI from "../../hooks/weatherAPI";
 import carparkTypeFilter from "../../hooks/carparkTypeFilter";
 import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
+import createLocationHistory from '../../hooks/createLocationHistory'; 
 // import routingAPI from "../../hooks/routingAPI";
 
 
@@ -131,6 +132,18 @@ const Home = () => {
     setSearchQuery("");
     console.log("Destination Selected");
   
+    // ✅ Call API to save location history
+    createLocationHistory({
+      coordinates: {
+        latitude: item.LATITUDE,
+        longitude: item.LONGITUDE,
+        x_coor: item.X,
+        y_coor: item.Y,
+      },
+      locationAddress: item.ADDRESS,
+      locationType: "destination",
+    });
+  
     // Animate the map to the destination
     if (mapRef.current) {
       mapRef.current.animateToRegion(
@@ -140,9 +153,8 @@ const Home = () => {
           latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         },
-        2000 // animation duration in milliseconds
+        2000
       );
-      
     }
   };
 
