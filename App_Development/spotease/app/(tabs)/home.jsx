@@ -63,7 +63,7 @@ const Home = () => {
 
   //Run once when the component mounts
   useEffect(() => {
-    (async () => {
+    const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
@@ -71,7 +71,10 @@ const Home = () => {
       }
 
       let loc = await Location.getCurrentPositionAsync({});
-      let [X, Y] = ConvertCoords(loc.coords.latitude, loc.coords.longitude);
+      let [X, Y] = ConvertCoords.WGS84ToSVY21(
+        loc.coords.latitude,
+        loc.coords.longitude
+      );
       setLocation({
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
@@ -82,9 +85,10 @@ const Home = () => {
         X: X,
         Y: Y,
       });
-    })();
+    };
 
     // Reset all filters to false by default
+    getLocation();
     const updatedFilters = {
       sheltered_parking: false, // Reset to false
       weather_parking_recommendation: false, // Reset to false
