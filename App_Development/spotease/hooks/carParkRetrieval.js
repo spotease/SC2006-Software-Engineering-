@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Alert } from "react-native";
-import calculateDistance from "./calculateDistanceXY";
+import calculateDistance from "./calculateDistance";
 import ConvertCoords from "./ConvertCoords";
 import retrieveLotsAPI from "./retrieveLotsAPI";
 
@@ -75,7 +75,7 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
             item.x_coord,
             item.y_coord
           );
-          const distance = calculateDistance(
+          const distance = calculateDistance.XYCoord(
             selectedDestination.X,
             selectedDestination.Y,
             item.x_coord,
