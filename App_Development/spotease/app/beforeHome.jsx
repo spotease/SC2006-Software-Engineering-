@@ -8,6 +8,8 @@ import checkIndoorRequired from "../hooks/checkIndoorRequired";
 import fetchLocationHistory from "../hooks/fetchLocationHistory";
 import * as Location from "expo-location";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from "expo-router";
+
 
 
 export default function BeforeHome() {
@@ -80,10 +82,20 @@ export default function BeforeHome() {
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemInBox}>
+    <TouchableOpacity
+      style={styles.itemInBox}
+      onPress={() => {
+        // Navigate to home and pass the selected address
+        router.push({
+          pathname: "/home",
+          params: { address: item },
+        });
+      }}
+    >
       <Text style={styles.boxText}>{item}</Text>
-    </View>
+    </TouchableOpacity>
   );
+  
 
   const getImageStyle = () => {
     if (weatherImage === require("../assets/images/beforeHomeRaining.png")) {
