@@ -1,116 +1,4 @@
-// import { View, Text, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-// import React, { useEffect, useState } from 'react';
-// import { MaterialIcons } from '@expo/vector-icons';
-// import { router } from 'expo-router';
-// import axios from 'axios';
-
-// export default function SearchHistory() {
-//   const [historyData, setHistoryData] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-
-//   // Assuming you have the logged-in user's email saved in your state or context
-//   const email = "user@example.com"; // Replace with actual email from context or storage
-
-//   useEffect(() => {
-//     const fetchHistoryData = async () => {
-//       try {
-//         const response = await axios.get(`https://sc2006-backend-spotease.onrender.com/location/${email}`);
-//         const data = response.data.data;
-
-//         // Group the locations by date
-//         const groupedData = groupByDate(data);
-
-//         setHistoryData(groupedData);
-//         setLoading(false);
-//       } catch (error) {
-//         setError("Failed to fetch location history");
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchHistoryData();
-//   }, [email]);
-
-//   // Group data by date
-//   const groupByDate = (locations) => {
-//     const grouped = {};
-//     locations.forEach((location) => {
-//       const date = new Date(location.timestamp).toLocaleDateString();
-//       if (!grouped[date]) {
-//         grouped[date] = [];
-//       }
-//       grouped[date].push({
-//         time: new Date(location.timestamp).toLocaleTimeString(),
-//         location: location.locationName,
-//         type: location.locationType,
-//       });
-//     });
-//     return Object.keys(grouped).map((date) => ({
-//       date,
-//       entries: grouped[date],
-//     }));
-//   };
-
-//   if (loading) {
-//     return (
-//       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
-//         <ActivityIndicator size="large" color="#00ff00" />
-//       </View>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
-//         <Text style={{ color: 'white' }}>{error}</Text>
-//       </View>
-//     );
-//   }
-
-//   return (
-//     <View style={{ flex: 1, backgroundColor: '#121212', padding: 16 }}>
-//       {/* Back Button */}
-//       <TouchableOpacity onPress={() => router.push("(tabs)/history")} style={styles.backButton}>
-//         <MaterialIcons name="arrow-back" size={24} color="white" />
-//       </TouchableOpacity>
-      
-//       <Text style={{ color: 'white', fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>
-//         History
-//       </Text>
-      
-//       <FlatList
-//         data={historyData}
-//         keyExtractor={(item) => item.date}
-//         renderItem={({ item }) => (
-//           <View style={{ marginBottom: 16 }}>
-//             <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>{item.date}</Text>
-//             {item.entries.map((entry, index) => (
-//               <View key={index} style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-//                 <Text style={{ color: 'white', fontSize: 16 }}>{entry.time}</Text>
-//                 <Text style={{ color: 'gray', fontSize: 16 }}>{entry.location}</Text>
-//                 <Text style={{ color: 'gray', fontSize: 16 }}>{entry.type}</Text>
-//               </View>
-//             ))}
-//           </View>
-//         )}
-//       />
-      
-//       <TouchableOpacity
-//         style={{ backgroundColor: '#008080', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 16 }}>
-//         <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Clear History</Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   backButton: {
-//     marginBottom: 15,
-//   },
-// });
-
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -171,84 +59,91 @@ export default function SearchHistory() {
     }));
   };
 
-// Then update your handleClearHistory function:
-const handleClearHistory = async () => {
-  try {
-    Alert.alert(
-      "Clear History",
-      "This will permanently delete all your location records. Continue?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Clear All",
-          onPress: async () => {
-            setLoading(true);
-            try {
-              const { success, error, deletedCount } = await clearLocationHistory();
-              
-              if (success) {
-                setHistoryData([]); // Clear local state immediately
-                Alert.alert(
-                  "Success", 
-                  deletedCount 
-                    ? `Cleared ${deletedCount} location records` 
-                    : "Location history cleared"
-                );
-              } else {
-                Alert.alert("Error", error || "Failed to clear history");
-              }
-            } catch (err) {
-              console.error("Clear error:", err);
-              Alert.alert("Error", "Failed to complete the request");
-            } finally {
-              setLoading(false);
-            }
+  const handleClearHistory = async () => {
+    try {
+      Alert.alert(
+        "Clear History",
+        "This will permanently delete all your location records. Continue?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
           },
-          style: "destructive",
-        },
-      ]
-    );
-  } catch (error) {
-    console.error("Alert error:", error);
-  }
-};
+          {
+            text: "Clear All",
+            onPress: async () => {
+              setLoading(true);
+              try {
+                const { success, error, deletedCount } = await clearLocationHistory();
+                
+                if (success) {
+                  setHistoryData([]); // Clear local state immediately
+                  Alert.alert(
+                    "Success", 
+                    deletedCount 
+                      ? `Cleared ${deletedCount} location records` 
+                      : "Location history cleared"
+                  );
+                } else {
+                  Alert.alert("Error", error || "Failed to clear history");
+                }
+              } catch (err) {
+                console.error("Clear error:", err);
+                Alert.alert("Error", "Failed to complete the request");
+              } finally {
+                setLoading(false);
+              }
+            },
+            style: "destructive",
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Alert error:", error);
+    }
+  };
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
-        <ActivityIndicator size="large" color="#00C3FF" />
-      </View>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#00C3FF" />
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
-        <Text style={{ color: 'white' }}>{error}</Text>
-      </View>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ color: 'white' }}>{error}</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity onPress={() => router.push("(tabs)/history")} style={styles.backButton}>
-        <MaterialIcons name="arrow-back" size={24} color="white" />
-      </TouchableOpacity>
+    <SafeAreaView style={styles.safeArea}>
+      {/* Fixed Header */}
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={() => router.back("(tabs)/history")} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={24} color="white" />
+        </TouchableOpacity>
+        <Text style={styles.header}>Search History</Text>
+      </View>
       
-      <Text style={styles.title}>Search History</Text>
-      
-      {historyData.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No search history available</Text>
-        </View>
-      ) : (
+      {/* Content Area */}
+      <View style={styles.contentContainer}>
         <FlatList
+          contentContainerStyle={styles.scrollContainer}
           data={historyData}
           keyExtractor={(item) => item.date}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No search history available</Text>
+            </View>
+          }
           renderItem={({ item }) => (
             <View style={styles.dateGroup}>
               <Text style={styles.dateHeader}>{item.date}</Text>
@@ -267,33 +162,48 @@ const handleClearHistory = async () => {
               ))}
             </View>
           )}
+          // Add padding at the bottom to ensure content isn't hidden behind the fixed button
+          ListFooterComponent={<View style={{ height: 80 }} />}
         />
-      )}
+      </View>
       
-      <TouchableOpacity 
-        style={styles.clearButton}
-        onPress={handleClearHistory}
-      >
-        <Text style={styles.clearButtonText}>Clear History</Text>
-      </TouchableOpacity>
-    </View>
+      {/* Fixed Clear Button */}
+      <View style={styles.fixedButtonContainer}>
+        <TouchableOpacity 
+          style={styles.clearButton}
+          onPress={handleClearHistory}
+        >
+          <Text style={styles.clearButtonText}>Clear History</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, 
-    backgroundColor: '#1E1E1E', 
-    padding: 16
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  headerContainer: {
+    paddingTop: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#000',
   },
   backButton: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
-  title: {
-    color: 'white', 
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    marginBottom: 16
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  scrollContainer: {
+    padding: 20,
+    paddingBottom: 20,
   },
   dateGroup: {
     marginBottom: 16,
@@ -333,25 +243,37 @@ const styles = StyleSheet.create({
     color: '#888', 
     fontSize: 12,
   },
+  fixedButtonContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.8)', // Semi-transparent background
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#333',
+  },
   clearButton: {
     backgroundColor: '#00C3FF', 
-    padding: 12, 
+    padding: 14, 
     borderRadius: 8, 
-    alignItems: 'center', 
-    marginTop: 16
+    alignItems: 'center',
   },
   clearButtonText: {
     color: 'white', 
-    fontSize: 18, 
+    fontSize: 16, 
     fontWeight: 'bold'
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 100,
   },
   emptyText: {
-    color: '#888',
+    color: '#666',
     fontSize: 16,
+    fontStyle: 'italic',
   }
 });
