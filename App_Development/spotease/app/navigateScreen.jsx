@@ -15,6 +15,7 @@ export default function NavigateScreen() {
   const [heading, setHeading] = useState(0); // User's direction (in degrees)
   const [arrived, setArrived] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0); // Tracks step in instructions 
+  const lastRoutedLocation = useRef(null);
   const router = useRouter();
 
   const destination = {
@@ -72,11 +73,42 @@ export default function NavigateScreen() {
       // Watch for position updates
       Location.watchPositionAsync({
         accuracy: Location.Accuracy.High,
-        distanceInterval: 3, // Update every 3 meters
+        distanceInterval: 3, // still update location every 3m
       }, (newLocation) => {
         setCurrentLocation(newLocation);
         setHeading(newLocation.coords.heading);
-        
+      
+        // Check if user has moved >10m since last API call
+        if (
+          !lastRoutedLocation.current ||
+          calculateDistance(
+            lastRoutedLocation.current.latitude,
+            lastRoutedLocation.current.longitude,
+            newLocation.coords.latitude,
+            newLocation.coords.longitude
+          ) > 10
+        ) {
+          lastRoutedLocation.current = {
+            latitude: newLocation.coords.latitude,
+            longitude: newLocation.coords.longitude,
+          };
+      
+          // Recalculate route
+          const start = {
+            LATITUDE: newLocation.coords.latitude,
+            LONGITUDE: newLocation.coords.longitude
+          };
+          
+          const end = {
+            LATITUDE: destination.latitude,
+            LONGITUDE: destination.longitude
+          };
+      
+          routingAPI(start, end).then(route => {
+            setRouteData(route);
+          });
+        }
+      
         // Check if arrived
         const distance = calculateDistance(
           newLocation.coords.latitude,
@@ -84,11 +116,11 @@ export default function NavigateScreen() {
           destination.latitude,
           destination.longitude
         );
-        
-        if (distance < 20) { // 20 meters threshold
+      
+        if (distance < 20) {
           setArrived(true);
         }
-      });
+      });      
     })();
   }, []);
 
