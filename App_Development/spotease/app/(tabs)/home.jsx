@@ -1,11 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import React, { useState, useEffect,useRef} from "react";
+import {View, StyleSheet, FlatList, Text, TouchableOpacity} from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
@@ -106,9 +100,9 @@ const Home = () => {
   
   
 
-  //Run once when the component mounts
+  // Get current location when the app loads
   useEffect(() => {
-    const getLocation = async () => {
+    (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied");
@@ -116,10 +110,6 @@ const Home = () => {
       }
 
       let loc = await Location.getCurrentPositionAsync({});
-      let [X, Y] = ConvertCoords.WGS84ToSVY21(
-        loc.coords.latitude,
-        loc.coords.longitude
-      );
       setLocation({
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
@@ -127,18 +117,9 @@ const Home = () => {
         longitudeDelta: 0.01,
         LATITUDE: loc.coords.latitude,
         LONGITUDE: loc.coords.longitude,
-        X: X,
-        Y: Y,
-      });
-    };
 
-    // Reset all filters to false by default
-    getLocation();
-    const updatedFilters = {
-      sheltered_parking: false, // Reset to false
-      weather_parking_recommendation: false, // Reset to false
-    };
-    setSelectedFilters(updatedFilters); // Update the state with the new filters
+      });
+    })();
   }, []);
 
   const handleFilterSelect = (filters) => {
@@ -186,12 +167,6 @@ const Home = () => {
   
 
   const addCarParkMarker = (item) => {
-    const DISTANCEAWAYFROMLOC = calculateDistance(
-      location.X,
-      location.Y,
-      item.X,
-      item.Y
-    );
     const newMarker = {
       id: carParkMarkers.length + 1,
       ADDRESS: item.ADDRESS,
@@ -203,18 +178,15 @@ const Home = () => {
       CARPARK_TYPE: item.CARPARK_TYPE,
       CARPARK_INFO: item.CARPARK_INFO,
       DISTANCEAWAY: item.DISTANCEAWAY,
-      DISTANCEAWAYFROMLOC: DISTANCEAWAYFROMLOC,
-      LOTS_AVAILABLE: item.CARPARK_INFO[0].lots_available,
-      TOTAL_LOTS: item.CARPARK_INFO[0].total_lots,
+      LOTS_AVAILABLE: item.LOTS_AVAILABLE,
+      TOTAL_LOTS: item.TOTAL_LOTS
     };
-    setCarParkMarkers((prevCarParkMarkers) => [
-      ...prevCarParkMarkers,
-      newMarker,
-    ]);
+
+    setCarParkMarkers((prevCarParkMarkers) => [...prevCarParkMarkers, newMarker]);
   };
 
   const filterOptions = [
-    { label: "1. Sheltered Parking", value: "sheltered_parking" },
+    { label: "1. Sheltered Parking", value: "sheltered_parking" }, 
     {
       label: "2. Weather Parking Recommendation",
       value: "weather_parking_recommendation",
