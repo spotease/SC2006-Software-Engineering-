@@ -96,10 +96,6 @@ const Home = () => {
     return () => clearTimeout(timeoutId); // Cleanup
   }, [selectedFilters, sortedCarParks, selectedDest]);
   
-
-  
-  
-
   // Get current location when the app loads
   useEffect(() => {
     (async () => {
