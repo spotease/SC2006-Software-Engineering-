@@ -7,9 +7,15 @@ import ConvertPostalToRegion from "../hooks/convertPostalToRegion";
 import checkIndoorRequired from "../hooks/checkIndoorRequired";
 import fetchLocationHistory from "../hooks/fetchLocationHistory";
 import * as Location from "expo-location";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function BeforeHome() {
   const [searchHistory, setSearchHistory] = useState([]);
+  const [savedImage, setSavedImage] = useState(null);
+  const [savedDescription, setSavedDescription] = useState('');
+  
+
 
   // Fetch search history on mount
   useEffect(() => {
@@ -28,6 +34,21 @@ export default function BeforeHome() {
     };
 
     getLocationHistory();
+  }, []);
+
+  useEffect(() => {
+    const loadSavedParkingInfo = async () => {
+      try {
+        const image = await AsyncStorage.getItem('parkingImage');
+        const description = await AsyncStorage.getItem('parkingDescription');
+        if (image) setSavedImage(image);
+        if (description) setSavedDescription(description);
+      } catch (error) {
+        console.error("Failed to load saved parking info:", error);
+      }
+    };
+  
+    loadSavedParkingInfo();
   }, []);
 
   //Depending on weather changes, the image will change
@@ -94,6 +115,30 @@ export default function BeforeHome() {
         />
       </View>
 
+      {(savedImage || savedDescription) && (
+  <>
+    <Text style={styles.sectionTitle}>Saved Parking Spot</Text>
+    <View style={styles.savedParkingBox}>
+      <FlatList
+        data={[{ image: savedImage, description: savedDescription }]}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={({ item }) => (
+          <View style={{ alignItems: 'center' }}>
+            {item.image && (
+              <Image source={{ uri: item.image }} style={styles.savedImage} />
+            )}
+            {item.description ? (
+              <Text style={styles.savedDescription}>{item.description}</Text>
+            ) : (
+              <Text style={styles.savedDescriptionItalic}>No description provided</Text>
+            )}
+          </View>
+        )}
+      />
+    </View>
+  </>
+)}
+
       
     </View>
   );
@@ -139,10 +184,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   searchHistoryBox: {
-    backgroundColor: '#6694FF',
+    backgroundColor: '#E26176',
     borderRadius: 10,
     marginBottom: 20,
-    maxHeight: 400,
+    maxHeight: 100,
   },
   itemInBox: {
     paddingVertical: 10,
@@ -152,5 +197,31 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: "600",
     fontSize: 15,
+  },
+  savedParkingBox: {
+    backgroundColor: '#F4B860',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    maxHeight: 200,
+  },
+  savedImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  savedDescription: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  savedDescriptionItalic: {
+    color: '#AAAAAA',
+    fontSize: 14,
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
 });
