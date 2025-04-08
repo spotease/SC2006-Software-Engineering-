@@ -18,6 +18,8 @@ import WeatherAPI from "../../hooks/weatherAPI";
 import carparkTypeFilter from "../../hooks/carparkTypeFilter";
 import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
 import calculateDistance from "../../hooks/calculateDistance";
+import createLocationHistory from '../../hooks/createLocationHistory';
+
 
 const Home = () => {
   const mapRef = useRef(null); // Create a ref for MapView
