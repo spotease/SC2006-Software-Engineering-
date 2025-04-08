@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList } from "react
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
 import reverseGeocode from "../hooks/reverseGeocode";
-import { weatherAPI } from "../hooks/weatherAPI";
+import WeatherAPI from "../hooks/weatherAPI";
 import ConvertPostalToRegion from "../hooks/convertPostalToRegion";
 import fetchLocationHistory from "../hooks/fetchLocationHistory";
 import * as Location from "expo-location";
@@ -29,6 +29,8 @@ export default function BeforeHome() {
     getLocationHistory();
   }, []);
 
+  //Depending on weather changes, the image will change
+  const [weatherImage, setWeatherImage] = useState(require("../assets/images/beforeHomeRaining.png"));
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -37,8 +39,8 @@ export default function BeforeHome() {
       let loc = await Location.getCurrentPositionAsync({});
       let AddressNearby = await reverseGeocode(loc.coords.latitude, loc.coords.longitude);
 
-      const { selectedRegion } = ConvertPostalToRegion(AddressNearby[0].POSTAL);
-      let forecastWeather = weatherAPI(selectedRegion);
+      let selectedRegion  = ConvertPostalToRegion(AddressNearby[0].POSTALCODE);
+      let forecastWeather = await WeatherAPI(selectedRegion);
     })();
   }, []);
 

@@ -11,7 +11,6 @@ import carParkRetrieval from "../../hooks/carParkRetrieval";
 import WeatherAPI from "../../hooks/weatherAPI";
 import carparkTypeFilter from "../../hooks/carparkTypeFilter";
 import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
-import createLocationHistory from '../../hooks/createLocationHistory'; 
 // import routingAPI from "../../hooks/routingAPI";
 
 
@@ -20,8 +19,11 @@ import createLocationHistory from '../../hooks/createLocationHistory';
 const Home = () => {
   let [filteredParking] = [];
   const mapRef = useRef(null); // Create a ref for MapView
-  const [selectedFilters, setSelectedFilters] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState({
+    sheltered_parking: false,
+    weather_parking_recommendation: false,
+  });
+    const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
   const { searchResults, loadingFlag } = searchAPI(searchQuery); // Variable to store searchResults from User Input
   const [selectedDest, setSelectedDest] = useState(null); // Variable to store Destination of User
@@ -46,26 +48,57 @@ const Home = () => {
   //   setSelectedFilters(updatedFilters); // Update the state with the new filters
   // },[]);
 
-  useEffect(() => {
-    const populateCPMarkers = async() => {
-      let region = ConvertPostalToRegion(selectedDest.POSTAL);
-      let forecastResult = await WeatherAPI(region);
-      filteredParking = carparkTypeFilter(forecastResult,sortedCarParks,selectedFilters);
-      console.log("Region",region);
-      console.log("Forecast Result:", forecastResult);
-      console.log("Filtered Parking:", filteredParking);
 
+  useEffect(() => {
+    if (!selectedDest || !sortedCarParks || !selectedFilters) return;
+  
+    const populateCPMarkers = async () => {
+      const region = ConvertPostalToRegion(selectedDest.POSTAL);
+      const forecastResult = await WeatherAPI(region);
+      console.log("Postal Code", selectedDest.POSTAL);
+      console.log("Region",region)
+      console.log("Forecast Result:", forecastResult);
+
+      const filtered = carparkTypeFilter(forecastResult, sortedCarParks, selectedFilters);
+  
       setCarParkMarkers([]); // Clear previous markers
-      if(filteredParking && filteredParking.length > 0) {
-        // console.log("Filtered Parking:", filteredParking);
-        filteredParking.map((item) => {
-          //console.log(item);
-          addCarParkMarker(item);
-        });
-      }
-    }
+      setCarParkMarkers(filtered.map(item => ({
+        id: item.CARPARK_NO,
+        ADDRESS: item.ADDRESS,
+        LATITUDE: item.LATITUDE,
+        LONGITUDE: item.LONGITUDE,
+        CARPARK_TYPE: item.CARPARK_TYPE,
+        LOTS_AVAILABLE: item.LOTS_AVAILABLE,
+        TOTAL_LOTS: item.TOTAL_LOTS,
+        DISTANCEAWAY: item.DISTANCEAWAY
+      })));
+    };
+  
+    // First run (populate markers immediately)
     populateCPMarkers();
-  },[sortedCarParks,selectedFilters]); // Add dependencies to the useEffect
+  
+    // Zoom animation based on filter radius
+    if (mapRef.current && selectedDest) {
+      const delta = (filterRadius+500) / 100000;
+      mapRef.current.animateToRegion({
+        latitude: selectedDest.LATITUDE,
+        longitude: selectedDest.LONGITUDE,
+        latitudeDelta: delta,
+        longitudeDelta: delta,
+      }, 1500);
+    }
+  
+    // Second run after animation (ensures proper iOS display)
+    const timeoutId = setTimeout(() => {
+      populateCPMarkers();
+    }, 3000); 
+  
+    return () => clearTimeout(timeoutId); // Cleanup
+  }, [selectedFilters, sortedCarParks, selectedDest]);
+  
+
+  
+  
 
   // Get current location when the app loads
   useEffect(() => {
@@ -89,74 +122,49 @@ const Home = () => {
     })();
   }, []);
 
-  const handleFilterSelect = async (filters) => {
-        // Reset all filters to false by default
+  const handleFilterSelect = (filters) => {
     const updatedFilters = {
-      sheltered_parking: false,  // Reset to false
-      weather_parking_recommendation: false,  // Reset to false
+      sheltered_parking: !!filters.sheltered_parking,
+      weather_parking_recommendation: !!filters.weather_parking_recommendation,
     };
-    
-    
   
-    // Update the selected filters state with the new filters object
-    setSelectedFilters(updatedFilters);
-  
-    // If distance is set, adjust the filter radius
-    if (filters.distance != undefined) {
+    if (filters.distance !== undefined) {
       setFilterRadius(filters.distance / 2);
-
     }
-
-    if(filters.sheltered_parking){
-      updatedFilters.sheltered_parking = true;
-    }
-    if(filters.weather_parking_recommendation){
-      updatedFilters.weather_parking_recommendation = true;
-
-    }
-    setSelectedFilters(updatedFilters); // Update the state with the new filters
-    console.log("Selected filters:", updatedFilters);
+  
+    // console.log("Selected filters:", updatedFilters);
+    setSelectedFilters(updatedFilters);
   };
+  
 
   const handleDestinationPress = (item) => {
-    const markerProperties = {
-      ADDRESS: item.ADDRESS,
-      LATITUDE: item.LATITUDE,
-      LONGITUDE: item.LONGITUDE,
-      X: item.X,
-      Y: item.Y,
-    };
-  
-    setDestMarker(markerProperties);
-    setSelectedDest(item);
-    setSearchQuery("");
-    console.log("Destination Selected");
-  
-    // ✅ Call API to save location history
-    createLocationHistory({
-      coordinates: {
+  const markerProperties = {
+    ADDRESS: item.ADDRESS,
+    LATITUDE: item.LATITUDE,
+    LONGITUDE: item.LONGITUDE,
+    X: item.X,
+    Y: item.Y,
+  };
+
+  setDestMarker(markerProperties);
+  setSelectedDest(item);
+  setSearchQuery("");
+  console.log("Destination Selected");
+
+  if (mapRef.current) {
+    mapRef.current.animateToRegion(
+      {
         latitude: item.LATITUDE,
         longitude: item.LONGITUDE,
-        x_coor: item.X,
-        y_coor: item.Y,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
       },
-      locationAddress: item.ADDRESS,
-      locationType: "destination",
-    });
+      2000
+    );
+  }
+};
+
   
-    // Animate the map to the destination
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: item.LATITUDE,
-          longitude: item.LONGITUDE,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        2000
-      );
-    }
-  };
 
   const addCarParkMarker = (item) => {
     const newMarker = {
@@ -205,64 +213,62 @@ const Home = () => {
         </FilterButton>
       </View>
 
-        <MapView
-          ref={mapRef} // Attach ref here
-          style={styles.map}
-          region={
-            location || {
-              latitude: 1.3521,
-              longitude: 103.8198,
-              latitudeDelta: 0.1,
-              longitudeDelta: 0.1,
-            }
-          }
-          showsUserLocation={true}
-          showsMyLocationButton={true}
-        >
-
-        {/*Destination Marker*/}
-        {destMarker.LATITUDE && destMarker.LONGITUDE && (
-          <Marker
-            coordinate={{
-              latitude: destMarker.LATITUDE,
-              longitude: destMarker.LONGITUDE,
-            }}
-          ></Marker>
-        )}
-        {/* You can customize the marker */}
-        {carParkMarkers.map((item) => (
-            <Marker
-              key={item.CARPARK_NO}
-              coordinate={{
-                latitude: item.LATITUDE,
-                longitude: item.LONGITUDE,
-              }}
-              pinColor="blue" // Car parks are marked in blue
-              onPress={() => {
-                handleCarParkMarkerPress(item); 
-
-                router.push({
-                  pathname: "/carParkDetails",
-                  params: {
-                    lotsavailable: item.LOTS_AVAILABLE,
-                    address: item.ADDRESS,
-                    totallots: item.TOTAL_LOTS,
-                    carparktype: item.CARPARK_TYPE,
-                    distanceaway: item.DISTANCEAWAY,
-                    lat: item.LATITUDE,
-                    lng: item.LONGITUDE,
-                  }
-                });
-              }}
-            />
-          ))}
-      </MapView>
+      <MapView
+      ref={mapRef}
+      style={styles.map}
+      region={
+        location || {
+          latitude: 1.3521,
+          longitude: 103.8198,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        }
+      }
+      showsUserLocation={true}
+      showsMyLocationButton={true}
+    >
+      {/* Destination Marker */}
+      {destMarker.LATITUDE && destMarker.LONGITUDE && (
+        <Marker
+          coordinate={{
+            latitude: destMarker.LATITUDE,
+            longitude: destMarker.LONGITUDE,
+          }}
+          key={`dest-${destMarker.LATITUDE}-${destMarker.LONGITUDE}`} // Unique key for destination marker
+        />
+      )}
+      
+      {/* Car Park Markers */}
+      {carParkMarkers.map((item) => (
+        <Marker
+          key={`${item.CARPARK_NO}-${item.LATITUDE}-${item.LONGITUDE}`} // Combine CARPARK_NO and LAT/LNG to ensure uniqueness
+          coordinate={{
+            latitude: item.LATITUDE,
+            longitude: item.LONGITUDE,
+          }}
+          pinColor="blue"
+          onPress={() => {
+            router.push({
+              pathname: "/carParkDetails",
+              params: {
+                lotsavailable: item.LOTS_AVAILABLE,
+                address: item.ADDRESS,
+                totallots: item.TOTAL_LOTS,
+                carparktype: item.CARPARK_TYPE,
+                distanceaway: item.DISTANCEAWAY,
+                lat: item.LATITUDE,
+                lng: item.LONGITUDE,
+              }
+            });
+          }}
+        />
+      ))}
+    </MapView>
 
       {!loadingFlag && searchResults.length > 0 && (
         <FlatList
           data={searchResults}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
+          keyExtractor={(item, index) => `${item.ADDRESS}-${index}`}          renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
