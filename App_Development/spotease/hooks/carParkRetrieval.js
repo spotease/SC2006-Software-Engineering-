@@ -10,8 +10,8 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   const [carParks, setCarParks] = useState([]);
   const [sortedCarParks, setSortedCarParks] = useState([]);
   const [lotsData, setLotsData] = useState([]);
-  const API_URL = `https://sc2006-backend-spotease.onrender.com/carpark/carParkRetrieval`;
-
+  const API_URL = `${process.env.EXPO_PUBLIC_RENDER_CARPARK_URL}`;
+  console.log(API_URL);
   const isBusy = useRef(false);
 
   const handleRetrieval = async () => {
