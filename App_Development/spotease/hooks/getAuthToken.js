@@ -3,8 +3,8 @@ const url = "https://www.onemap.gov.sg/api/auth/post/getToken";
 async function getAuthToken() {
   try {
     const data = JSON.stringify({
-      email: "C230124@e.ntu.edu.sg",
-      password: "SC2006Project!",
+      email: `${process.env.EXPO_PUBLIC_ONEMAP_API_EMAIL}`,
+      password: `${process.env.EXPO_PUBLIC_ONEMAP_API_PASS}`,
     });
 
     const response = await fetch(url, {
