@@ -88,7 +88,7 @@ const ParkingLocation = () => {
     <SafeAreaView style={styles.safeArea}>
       {/* Fixed Header */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.push("(tabs)/history")} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back("(tabs)/history")} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.header}>Parking Location</Text>
