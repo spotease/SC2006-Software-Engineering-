@@ -17,7 +17,6 @@ import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
 
 
 const Home = () => {
-  let [filteredParking] = [];
   const mapRef = useRef(null); // Create a ref for MapView
   const [selectedFilters, setSelectedFilters] = useState({
     sheltered_parking: false,
