@@ -39,7 +39,7 @@ const removeAsyncStorage = async() => {
             </Swiper>
         </View>
         <CustomButton title="Login/Register" onPress={() => router.push('/(auth)/login')}/>
-        <GuestLoginButton title="Continue as Guest" onPress={async () =>  {await removeAsyncStorage(); router.push('/beforeHome')}}/>
+        <GuestLoginButton title="Continue as Guest" onPress={async () =>  {await removeAsyncStorage(); router.push('/home')}}/>
 
     </View>
   );
