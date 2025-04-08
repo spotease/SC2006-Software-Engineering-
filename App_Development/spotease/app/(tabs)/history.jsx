@@ -9,7 +9,7 @@ export default function history() {
   return (
     <View style={styles.container}>
       {/* Back Button */}
-      <TouchableOpacity onPress={() => router.push("(auth)/login")} style={styles.backButton}>
+      <TouchableOpacity onPress={() => router.back("(tabs)/home")} style={styles.backButton}>
         <MaterialIcons name="arrow-back" size={24} color="white" />
       </TouchableOpacity>
       
