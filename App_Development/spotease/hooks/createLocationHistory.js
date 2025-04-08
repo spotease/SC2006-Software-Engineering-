@@ -31,7 +31,7 @@ const createLocationHistory = async (locationData) => {
     }
 
     if (res.ok) {
-      Alert.alert('Success', data.message);
+      //Alert.alert('Success', data.message);
     } else {
       Alert.alert('Error', data.error || 'Failed to save location');
     }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import reverseGeocode from "../hooks/reverseGeocode";
 import WeatherAPI from "../hooks/weatherAPI";
 import ConvertPostalToRegion from "../hooks/convertPostalToRegion";
+import checkIndoorRequired from "../hooks/checkIndoorRequired";
 import fetchLocationHistory from "../hooks/fetchLocationHistory";
 import * as Location from "expo-location";
 
@@ -30,7 +31,7 @@ export default function BeforeHome() {
   }, []);
 
   //Depending on weather changes, the image will change
-  const [weatherImage, setWeatherImage] = useState(require("../assets/images/beforeHomeRaining.png"));
+  const [weatherImage, setWeatherImage] = useState(null);
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -41,6 +42,19 @@ export default function BeforeHome() {
 
       let selectedRegion  = ConvertPostalToRegion(AddressNearby[0].POSTALCODE);
       let forecastWeather = await WeatherAPI(selectedRegion);
+      let selectedFilters = {
+        sheltered_parking: false,
+        weather_parking_recommendation: true,
+      };
+
+      let indoorRequired = checkIndoorRequired(forecastWeather, selectedFilters);
+      console.log("Indoor Required:", indoorRequired);
+      if (indoorRequired) {
+        setWeatherImage(require("../assets/images/beforeHomeRaining.png"));
+      } else{
+        setWeatherImage(require("../assets/images/beforeHomeSunny.png"));
+      }
+
     })();
   }, []);
 
@@ -50,9 +64,17 @@ export default function BeforeHome() {
     </View>
   );
 
+  const getImageStyle = () => {
+    if (weatherImage === require("../assets/images/beforeHomeRaining.png")) {
+      // Increase the size when the image is 'beforeHomeRaining.png'
+      return [styles.carIcon, { height: 280,width: "100%" }];  // Adjust height for raining image
+    }
+    return styles.carIcon; // Default height for sunny image
+  };
+
   return (
     <View style={styles.container}>
-      <Image source={require("../assets/images/beforeHomeRaining.png")} style={styles.carIcon} />
+      <Image source={weatherImage} style={getImageStyle()} resizeMode="contain" /> 
       
       <Link href="/home" asChild>
         <TouchableOpacity style={styles.searchBar}>
@@ -95,11 +117,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   carIcon: {
+    resizeMode: "contain",
     marginTop: 55,
-    width: 350,
+    width: "100%",
     height: 220,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   subtitle: {
     color: "white",
