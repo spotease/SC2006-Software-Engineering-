@@ -1,11 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Text,
-  TouchableOpacity,
-} from "react-native";
+import React, { useState, useEffect,useRef} from "react";
+import {View, StyleSheet, FlatList, Text, TouchableOpacity} from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
@@ -17,8 +11,13 @@ import carParkRetrieval from "../../hooks/carParkRetrieval";
 import WeatherAPI from "../../hooks/weatherAPI";
 import carparkTypeFilter from "../../hooks/carparkTypeFilter";
 import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
-import calculateDistance from "../../hooks/calculateDistance";
-import createLocationHistory from '../../hooks/createLocationHistory';
+import createLocationHistory from '../../hooks/createLocationHistory'; 
+import { useLocalSearchParams } from "expo-router";
+
+
+// import routingAPI from "../../hooks/routingAPI";
+
+
 
 
 const Home = () => {
@@ -27,8 +26,8 @@ const Home = () => {
     sheltered_parking: false,
     weather_parking_recommendation: false,
   });
+    const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // Variable to store User Input
   const { searchResults, loadingFlag } = searchAPI(searchQuery); // Variable to store searchResults from User Input
   const [selectedDest, setSelectedDest] = useState(null); // Variable to store Destination of User
   const [filterRadius, setFilterRadius] = useState(1000 / 2); // Variable to store Filter Distance in (m)
@@ -39,70 +38,69 @@ const Home = () => {
   );
   const [carParkMarkers, setCarParkMarkers] = useState([]); // Variable to store nearby Carpark Markers
   const [destMarker, setDestMarker] = useState({}); // Variable to store selected destination of User
+  const params = useLocalSearchParams();
+
+
+  
+  //Starting Initialization
+  // useEffect(() => {
+  //   // Reset all filters to false by default
+  //   const updatedFilters = {
+  //     sheltered_parking: false,  // Reset to false
+  //     weather_parking_recommendation: false,  // Reset to false
+  //   };
+  //   setCarParkMarkers([]); 
+  //   setSelectedFilters(updatedFilters); // Update the state with the new filters
+  // },[]);
+
 
   useEffect(() => {
     if (!selectedDest || !sortedCarParks || !selectedFilters) return;
-
+  
     const populateCPMarkers = async () => {
       const region = ConvertPostalToRegion(selectedDest.POSTAL);
       const forecastResult = await WeatherAPI(region);
       console.log("Postal Code", selectedDest.POSTAL);
-      console.log("Region", region);
+      console.log("Region",region)
       console.log("Forecast Result:", forecastResult);
 
-      const filtered = carparkTypeFilter(
-        forecastResult,
-        sortedCarParks,
-        selectedFilters
-      );
-
+      const filtered = carparkTypeFilter(forecastResult, sortedCarParks, selectedFilters);
+  
       setCarParkMarkers([]); // Clear previous markers
-
-      setCarParkMarkers(
-        filtered.map((item) => ({
-          id: item.CARPARK_NO,
-          ADDRESS: item.ADDRESS,
-          LATITUDE: item.LATITUDE,
-          LONGITUDE: item.LONGITUDE,
-          CARPARK_TYPE: item.CARPARK_TYPE,
-          LOTS_AVAILABLE: item.CARPARK_INFO[0].lots_available,
-          TOTAL_LOTS: item.CARPARK_INFO[0].total_lots,
-          DISTANCEAWAY: item.DISTANCEAWAY,
-          DISTANCEAWAYFROMLOC: calculateDistance.LatLongCoord(
-            location.LATITUDE,
-            location.LONGITUDE,
-            item.LATITUDE,
-            item.LONGITUDE
-          ),
-        }))
-      );
+      setCarParkMarkers(filtered.map(item => ({
+        id: item.CARPARK_NO,
+        ADDRESS: item.ADDRESS,
+        LATITUDE: item.LATITUDE,
+        LONGITUDE: item.LONGITUDE,
+        CARPARK_TYPE: item.CARPARK_TYPE,
+        LOTS_AVAILABLE: item.LOTS_AVAILABLE,
+        TOTAL_LOTS: item.TOTAL_LOTS,
+        DISTANCEAWAY: item.DISTANCEAWAY
+      })));
     };
-
+  
     // First run (populate markers immediately)
     populateCPMarkers();
-
+  
     // Zoom animation based on filter radius
     if (mapRef.current && selectedDest) {
-      const delta = (filterRadius + 500) / 100000;
-      mapRef.current.animateToRegion(
-        {
-          latitude: selectedDest.LATITUDE,
-          longitude: selectedDest.LONGITUDE,
-          latitudeDelta: delta,
-          longitudeDelta: delta,
-        },
-        1500
-      );
+      const delta = (filterRadius+500) / 100000;
+      mapRef.current.animateToRegion({
+        latitude: selectedDest.LATITUDE,
+        longitude: selectedDest.LONGITUDE,
+        latitudeDelta: delta,
+        longitudeDelta: delta,
+      }, 1500);
     }
-
+  
     // Second run after animation (ensures proper iOS display)
     const timeoutId = setTimeout(() => {
       populateCPMarkers();
-    }, 3000);
-
+    }, 3000); 
+  
     return () => clearTimeout(timeoutId); // Cleanup
   }, [selectedFilters, sortedCarParks, selectedDest]);
-
+  
   // Get current location when the app loads
   useEffect(() => {
     (async () => {
@@ -120,65 +118,95 @@ const Home = () => {
         longitudeDelta: 0.01,
         LATITUDE: loc.coords.latitude,
         LONGITUDE: loc.coords.longitude,
+
       });
     })();
   }, []);
+
+  useEffect(() => {
+    if (params?.address) {
+      setSearchQuery(params.address);
+    }
+  }, [params]);
+  
+  
 
   const handleFilterSelect = (filters) => {
     const updatedFilters = {
       sheltered_parking: !!filters.sheltered_parking,
       weather_parking_recommendation: !!filters.weather_parking_recommendation,
     };
-
+  
     if (filters.distance !== undefined) {
       setFilterRadius(filters.distance / 2);
     }
-
+  
     // console.log("Selected filters:", updatedFilters);
     setSelectedFilters(updatedFilters);
   };
+  
 
   const handleDestinationPress = (item) => {
-    const markerProperties = {
+  const markerProperties = {
+    ADDRESS: item.ADDRESS,
+    LATITUDE: item.LATITUDE,
+    LONGITUDE: item.LONGITUDE,
+    X: item.X,
+    Y: item.Y,
+  };
+
+  setDestMarker(markerProperties);
+  setSelectedDest(item);
+  setSearchQuery("");
+  console.log("Destination Selected");
+
+  createLocationHistory({
+    coordinates: {
+      latitude: item.LATITUDE,
+      longitude: item.LONGITUDE,
+      x_coor: item.X,
+      y_coor: item.Y,
+    },
+    locationAddress: item.ADDRESS,
+    locationType: "destination", 
+  });
+
+  if (mapRef.current) {
+    mapRef.current.animateToRegion(
+      {
+        latitude: item.LATITUDE,
+        longitude: item.LONGITUDE,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      },
+      2000
+    );
+  }
+};
+
+  
+
+  const addCarParkMarker = (item) => {
+    const newMarker = {
+      id: carParkMarkers.length + 1,
       ADDRESS: item.ADDRESS,
       LATITUDE: item.LATITUDE,
       LONGITUDE: item.LONGITUDE,
       X: item.X,
       Y: item.Y,
+      CARPARK_NO: item.CARPARK_NO,
+      CARPARK_TYPE: item.CARPARK_TYPE,
+      CARPARK_INFO: item.CARPARK_INFO,
+      DISTANCEAWAY: item.DISTANCEAWAY,
+      LOTS_AVAILABLE: item.LOTS_AVAILABLE,
+      TOTAL_LOTS: item.TOTAL_LOTS
     };
 
-    setDestMarker(markerProperties);
-    setSelectedDest(item);
-    setSearchQuery("");
-    console.log("Destination Selected");
-
-    // ✅ Call API to save location history
-    createLocationHistory({
-      coordinates: {
-        latitude: item.LATITUDE,
-        longitude: item.LONGITUDE,
-        x_coor: item.X,
-        y_coor: item.Y,
-      },
-      locationAddress: item.ADDRESS,
-      locationType: "destination",
-    });
-
-    if (mapRef.current) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: item.LATITUDE,
-          longitude: item.LONGITUDE,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        },
-        2000
-      );
-    }
+    setCarParkMarkers((prevCarParkMarkers) => [...prevCarParkMarkers, newMarker]);
   };
 
   const filterOptions = [
-    { label: "1. Sheltered Parking", value: "sheltered_parking" },
+    { label: "1. Sheltered Parking", value: "sheltered_parking" }, 
     {
       label: "2. Weather Parking Recommendation",
       value: "weather_parking_recommendation",
@@ -206,63 +234,61 @@ const Home = () => {
       </View>
 
       <MapView
-        ref={mapRef}
-        style={styles.map}
-        region={
-          location || {
-            latitude: 1.3521,
-            longitude: 103.8198,
-            latitudeDelta: 0.1,
-            longitudeDelta: 0.1,
-          }
+      ref={mapRef}
+      style={styles.map}
+      region={
+        location || {
+          latitude: 1.3521,
+          longitude: 103.8198,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
         }
-        showsUserLocation={true}
-        showsMyLocationButton={true}
-      >
-        {/* Destination Marker */}
-        {destMarker.LATITUDE && destMarker.LONGITUDE && (
-          <Marker
-            coordinate={{
-              latitude: destMarker.LATITUDE,
-              longitude: destMarker.LONGITUDE,
-            }}
-            key={`dest-${destMarker.LATITUDE}-${destMarker.LONGITUDE}`} // Unique key for destination marker
-          />
-        )}
-
-        {/* Car Park Markers */}
-        {carParkMarkers.map((item) => (
-          <Marker
-            key={`${item.CARPARK_NO}-${item.LATITUDE}-${item.LONGITUDE}`} // Combine CARPARK_NO and LAT/LNG to ensure uniqueness
-            coordinate={{
-              latitude: item.LATITUDE,
-              longitude: item.LONGITUDE,
-            }}
-            pinColor="blue"
-            onPress={() => {
-              router.push({
-                pathname: "/carParkDetails",
-                params: {
-                  lotsavailable: item.LOTS_AVAILABLE,
-                  address: item.ADDRESS,
-                  totallots: item.TOTAL_LOTS,
-                  carparktype: item.CARPARK_TYPE,
-                  distanceaway: item.DISTANCEAWAY,
-                  distanceawayfromloc: item.DISTANCEAWAYFROMLOC,
-                  lat: item.LATITUDE,
-                  lng: item.LONGITUDE,
-                },
-              });
-            }}
-          />
-        ))}
-      </MapView>
+      }
+      showsUserLocation={true}
+      showsMyLocationButton={true}
+    >
+      {/* Destination Marker */}
+      {destMarker.LATITUDE && destMarker.LONGITUDE && (
+        <Marker
+          coordinate={{
+            latitude: destMarker.LATITUDE,
+            longitude: destMarker.LONGITUDE,
+          }}
+          key={`dest-${destMarker.LATITUDE}-${destMarker.LONGITUDE}`} // Unique key for destination marker
+        />
+      )}
+      
+      {/* Car Park Markers */}
+      {carParkMarkers.map((item) => (
+        <Marker
+          key={`${item.CARPARK_NO}-${item.LATITUDE}-${item.LONGITUDE}`} // Combine CARPARK_NO and LAT/LNG to ensure uniqueness
+          coordinate={{
+            latitude: item.LATITUDE,
+            longitude: item.LONGITUDE,
+          }}
+          pinColor="blue"
+          onPress={() => {
+            router.push({
+              pathname: "/carParkDetails",
+              params: {
+                lotsavailable: item.LOTS_AVAILABLE,
+                address: item.ADDRESS,
+                totallots: item.TOTAL_LOTS,
+                carparktype: item.CARPARK_TYPE,
+                distanceaway: item.DISTANCEAWAY,
+                lat: item.LATITUDE,
+                lng: item.LONGITUDE,
+              }
+            });
+          }}
+        />
+      ))}
+    </MapView>
 
       {!loadingFlag && searchResults.length > 0 && (
         <FlatList
           data={searchResults}
-          keyExtractor={(item, index) => `${item.ADDRESS}-${index}`}
-          renderItem={({ item }) => (
+          keyExtractor={(item, index) => `${item.ADDRESS}-${index}`}          renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.itemContainer}
               onPress={() => {
@@ -339,4 +365,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default Home; 
