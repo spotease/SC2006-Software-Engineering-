@@ -1,4 +1,3 @@
-// hooks/useAutoLogout.js
 import { useEffect, useRef } from "react";
 import { AppState, BackHandler } from "react-native";
 import useLogout from "./useLogout";
