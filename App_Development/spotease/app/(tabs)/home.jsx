@@ -11,15 +11,14 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import searchAPI from "../../hooks/searchAPI";
 import * as Location from "expo-location";
 import carParkRetrieval from "../../hooks/carParkRetrieval";
-import WeatherAPI from "../../hooks/weatherAPI";
-import carparkTypeFilter from "../../hooks/carparkTypeFilter";
-import ConvertPostalToRegion from "../../hooks/convertPostalToRegion";
-import createLocationHistory from "../../hooks/createLocationHistory";
-import calculateDistance from "../../hooks/calculateDistance";
+import WeatherAPI from "../../functions/Carpark Related/weatherAPI";
+import carparkTypeFilter from "../../functions/Carpark Related/carparkTypeFilter";
+import ConvertPostalToRegion from "../../functions/Location Related/convertPostalToRegion";
+import createLocationHistory from "../../functions/History Related/createLocationHistory";
+import calculateDistance from "../../functions/Location Related/calculateDistance";
 import { useLocalSearchParams } from "expo-router";
 
 // import routingAPI from "../../hooks/routingAPI";
@@ -43,17 +42,6 @@ const Home = () => {
   const [carParkMarkers, setCarParkMarkers] = useState([]); // Variable to store nearby Carpark Markers
   const [destMarker, setDestMarker] = useState({}); // Variable to store selected destination of User
   const params = useLocalSearchParams();
-
-  //Starting Initialization
-  // useEffect(() => {
-  //   // Reset all filters to false by default
-  //   const updatedFilters = {
-  //     sheltered_parking: false,  // Reset to false
-  //     weather_parking_recommendation: false,  // Reset to false
-  //   };
-  //   setCarParkMarkers([]);
-  //   setSelectedFilters(updatedFilters); // Update the state with the new filters
-  // },[]);
 
   useEffect(() => {
     if (!selectedDest || !sortedCarParks || !selectedFilters) return;
@@ -155,7 +143,6 @@ const Home = () => {
       setFilterRadius(filters.distance / 2);
     }
 
-    // console.log("Selected filters:", updatedFilters);
     setSelectedFilters(updatedFilters);
   };
 
@@ -202,7 +189,7 @@ const Home = () => {
     {
       label: "2. Weather Parking Recommendation",
       value: "weather_parking_recommendation",
-    }, // This is just an example, you can adjust the labels accordingly.
+    },
   ];
 
   return (

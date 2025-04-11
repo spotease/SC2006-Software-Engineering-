@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import useLogout from '../../hooks/useLogout'; // Import your existing hook
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import useLogout from "../../functions/Auth/useLogout"; // Import your existing hook
 
 export default function LogoutScreen() {
   const logout = useLogout(); // Get the logout function from your hook
@@ -13,11 +13,7 @@ export default function LogoutScreen() {
 
   return (
     <View style={styles.container}>
-      <MaterialIcons 
-        name="logout" 
-        size={30} 
-        color="#00C3FF" 
-      />
+      <MaterialIcons name="logout" size={30} color="#00C3FF" />
     </View>
   );
 }
@@ -25,8 +21,8 @@ export default function LogoutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1E1E1E'
-  }
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1E1E1E",
+  },
 });

@@ -1,23 +1,26 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  FlatList,
+} from "react-native";
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import reverseGeocode from "../hooks/reverseGeocode";
-import WeatherAPI from "../hooks/weatherAPI";
-import ConvertPostalToRegion from "../hooks/convertPostalToRegion";
-import checkIndoorRequired from "../hooks/checkIndoorRequired";
-import fetchLocationHistory from "../hooks/fetchLocationHistory";
+import reverseGeocode from "../functions/Location Related/reverseGeocode";
+import WeatherAPI from "../functions/Carpark Related/weatherAPI.js";
+import ConvertPostalToRegion from "../functions/Location Related/convertPostalToRegion";
+import checkIndoorRequired from "../functions/Carpark Related/checkIndoorRequired";
+import fetchLocationHistory from "../functions/History Related/fetchLocationHistory.js";
 import * as Location from "expo-location";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-
-
 
 export default function BeforeHome() {
   const [searchHistory, setSearchHistory] = useState([]);
   const [savedImage, setSavedImage] = useState(null);
-  const [savedDescription, setSavedDescription] = useState('');
-  
-
+  const [savedDescription, setSavedDescription] = useState("");
 
   // Fetch search history on mount
   useEffect(() => {
@@ -25,7 +28,7 @@ export default function BeforeHome() {
       try {
         const data = await fetchLocationHistory();
         if (data?.history?.length) {
-          const flattened = data.history.map(item => item.locationAddress);
+          const flattened = data.history.map((item) => item.locationAddress);
           setSearchHistory(flattened.slice(0, 5)); // Display recent 5 for example
         } else {
           setSearchHistory([]);
@@ -41,15 +44,15 @@ export default function BeforeHome() {
   useEffect(() => {
     const loadSavedParkingInfo = async () => {
       try {
-        const image = await AsyncStorage.getItem('parkingImage');
-        const description = await AsyncStorage.getItem('parkingDescription');
+        const image = await AsyncStorage.getItem("parkingImage");
+        const description = await AsyncStorage.getItem("parkingDescription");
         if (image) setSavedImage(image);
         if (description) setSavedDescription(description);
       } catch (error) {
         console.error("Failed to load saved parking info:", error);
       }
     };
-  
+
     loadSavedParkingInfo();
   }, []);
 
@@ -61,23 +64,28 @@ export default function BeforeHome() {
       if (status !== "granted") return;
 
       let loc = await Location.getCurrentPositionAsync({});
-      let AddressNearby = await reverseGeocode(loc.coords.latitude, loc.coords.longitude);
+      let AddressNearby = await reverseGeocode(
+        loc.coords.latitude,
+        loc.coords.longitude
+      );
 
-      let selectedRegion  = ConvertPostalToRegion(AddressNearby[0].POSTALCODE);
+      let selectedRegion = ConvertPostalToRegion(AddressNearby[0].POSTALCODE);
       let forecastWeather = await WeatherAPI(selectedRegion);
       let selectedFilters = {
         sheltered_parking: false,
         weather_parking_recommendation: true,
       };
 
-      let indoorRequired = checkIndoorRequired(forecastWeather, selectedFilters);
+      let indoorRequired = checkIndoorRequired(
+        forecastWeather,
+        selectedFilters
+      );
       console.log("Indoor Required:", indoorRequired);
       if (indoorRequired) {
         setWeatherImage(require("../assets/images/beforeHomeRaining.png"));
-      } else{
+      } else {
         setWeatherImage(require("../assets/images/beforeHomeSunny.png"));
       }
-
     })();
   }, []);
 
@@ -95,20 +103,23 @@ export default function BeforeHome() {
       <Text style={styles.boxText}>{item}</Text>
     </TouchableOpacity>
   );
-  
 
   const getImageStyle = () => {
     if (weatherImage === require("../assets/images/beforeHomeRaining.png")) {
       // Increase the size when the image is 'beforeHomeRaining.png'
-      return [styles.carIcon, { height: 280,width: "100%" }];  // Adjust height for raining image
+      return [styles.carIcon, { height: 280, width: "100%" }]; // Adjust height for raining image
     }
     return styles.carIcon; // Default height for sunny image
   };
 
   return (
     <View style={styles.container}>
-      <Image source={weatherImage} style={getImageStyle()} resizeMode="contain" /> 
-      
+      <Image
+        source={weatherImage}
+        style={getImageStyle()}
+        resizeMode="contain"
+      />
+
       <Link href="/home" asChild>
         <TouchableOpacity style={styles.searchBar}>
           <Text style={styles.searchBarText}>Start Search!</Text>
@@ -128,30 +139,35 @@ export default function BeforeHome() {
       </View>
 
       {(savedImage || savedDescription) && (
-  <>
-    <Text style={styles.sectionTitle}>Saved Parking Spot</Text>
-    <View style={styles.savedParkingBox}>
-      <FlatList
-        data={[{ image: savedImage, description: savedDescription }]}
-        keyExtractor={(_, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={{ alignItems: 'center' }}>
-            {item.image && (
-              <Image source={{ uri: item.image }} style={styles.savedImage} />
-            )}
-            {item.description ? (
-              <Text style={styles.savedDescription}>{item.description}</Text>
-            ) : (
-              <Text style={styles.savedDescriptionItalic}>No description provided</Text>
-            )}
+        <>
+          <Text style={styles.sectionTitle}>Saved Parking Spot</Text>
+          <View style={styles.savedParkingBox}>
+            <FlatList
+              data={[{ image: savedImage, description: savedDescription }]}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View style={{ alignItems: "center" }}>
+                  {item.image && (
+                    <Image
+                      source={{ uri: item.image }}
+                      style={styles.savedImage}
+                    />
+                  )}
+                  {item.description ? (
+                    <Text style={styles.savedDescription}>
+                      {item.description}
+                    </Text>
+                  ) : (
+                    <Text style={styles.savedDescriptionItalic}>
+                      No description provided
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
           </View>
-        )}
-      />
-    </View>
-  </>
-)}
-
-      
+        </>
+      )}
     </View>
   );
 }
@@ -186,7 +202,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "600",
     textAlign: "center",
-    fontStyle: 'italic',
+    fontStyle: "italic",
     marginBottom: 30,
   },
   sectionTitle: {
@@ -196,7 +212,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   searchHistoryBox: {
-    backgroundColor: '#E26176',
+    backgroundColor: "#E26176",
     borderRadius: 10,
     marginBottom: 20,
     maxHeight: 100,
@@ -206,16 +222,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   boxText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontWeight: "600",
     fontSize: 15,
   },
   savedParkingBox: {
-    backgroundColor: '#F4B860',
+    backgroundColor: "#F4B860",
     borderRadius: 10,
     padding: 10,
     marginBottom: 20,
-    alignItems: 'center',
+    alignItems: "center",
     maxHeight: 200,
   },
   savedImage: {
@@ -225,15 +241,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   savedDescription: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 15,
-    textAlign: 'center',
-    fontWeight: '500',
+    textAlign: "center",
+    fontWeight: "500",
   },
   savedDescriptionItalic: {
-    color: '#AAAAAA',
+    color: "#AAAAAA",
     fontSize: 14,
-    fontStyle: 'italic',
-    textAlign: 'center',
+    fontStyle: "italic",
+    textAlign: "center",
   },
 });

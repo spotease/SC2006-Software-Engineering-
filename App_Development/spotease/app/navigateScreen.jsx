@@ -1,35 +1,35 @@
-import { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import MapView, { Polyline, Marker } from 'react-native-maps';
-import * as Location from 'expo-location';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import routingAPI from '../../spotease/hooks/routingAPI';
-import decodePolyline from '../../spotease/hooks/decodePolyline'; 
+import { useState, useEffect, useRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import MapView, { Polyline, Marker } from "react-native-maps";
+import * as Location from "expo-location";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import routingAPI from "../../spotease/functions/Location Related/routingAPI";
+import decodePolyline from "../../spotease/functions/Location Related/decodePolyline";
 
 export default function NavigateScreen() {
   const { address, lat, lng } = useLocalSearchParams();
-  const mapRef = useRef(null); //ref to mapview 
+  const mapRef = useRef(null); //ref to mapview
   const [routeData, setRouteData] = useState(null); // Raw route data from API
   const [routeCoordinates, setRouteCoordinates] = useState([]); // Decoded route coordinates
   const [currentLocation, setCurrentLocation] = useState(null); // User's live location
   const [heading, setHeading] = useState(0); // User's direction (in degrees)
   const [arrived, setArrived] = useState(false);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0); // Tracks step in instructions 
+  const [currentStepIndex, setCurrentStepIndex] = useState(0); // Tracks step in instructions
   const lastRoutedLocation = useRef(null);
   const router = useRouter();
 
   const destination = {
     latitude: parseFloat(lat),
-    longitude: parseFloat(lng)
+    longitude: parseFloat(lng),
   };
 
   // Decode the route geometry when routeData changes
   useEffect(() => {
     if (routeData?.route_geometry) {
       const decoded = decodePolyline(routeData.route_geometry);
-      const formattedCoords = decoded.map(coord => ({
+      const formattedCoords = decoded.map((coord) => ({
         latitude: coord[0],
-        longitude: coord[1]
+        longitude: coord[1],
       }));
       setRouteCoordinates(formattedCoords);
     }
@@ -39,15 +39,15 @@ export default function NavigateScreen() {
   useEffect(() => {
     const getRoute = async () => {
       if (!currentLocation) return;
-      
+
       const start = {
         LATITUDE: currentLocation.coords.latitude,
-        LONGITUDE: currentLocation.coords.longitude
+        LONGITUDE: currentLocation.coords.longitude,
       };
-      
+
       const end = {
         LATITUDE: destination.latitude,
-        LONGITUDE: destination.longitude
+        LONGITUDE: destination.longitude,
       };
 
       const route = await routingAPI(start, end);
@@ -61,8 +61,8 @@ export default function NavigateScreen() {
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.error('Permission denied');
+      if (status !== "granted") {
+        console.error("Permission denied");
         return;
       }
 
@@ -71,75 +71,78 @@ export default function NavigateScreen() {
       setCurrentLocation(location);
 
       // Watch for position updates
-      Location.watchPositionAsync({
-        accuracy: Location.Accuracy.High,
-        distanceInterval: 3, // still update location every 3m
-      }, (newLocation) => {
-        setCurrentLocation(newLocation);
-        setHeading(newLocation.coords.heading);
-      
-        // Check if user has moved >10m since last API call
-        if (
-          !lastRoutedLocation.current ||
-          calculateDistance(
-            lastRoutedLocation.current.latitude,
-            lastRoutedLocation.current.longitude,
+      Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: 3, // still update location every 3m
+        },
+        (newLocation) => {
+          setCurrentLocation(newLocation);
+          setHeading(newLocation.coords.heading);
+
+          // Check if user has moved >10m since last API call
+          if (
+            !lastRoutedLocation.current ||
+            calculateDistance(
+              lastRoutedLocation.current.latitude,
+              lastRoutedLocation.current.longitude,
+              newLocation.coords.latitude,
+              newLocation.coords.longitude
+            ) > 10
+          ) {
+            lastRoutedLocation.current = {
+              latitude: newLocation.coords.latitude,
+              longitude: newLocation.coords.longitude,
+            };
+
+            // Recalculate route
+            const start = {
+              LATITUDE: newLocation.coords.latitude,
+              LONGITUDE: newLocation.coords.longitude,
+            };
+
+            const end = {
+              LATITUDE: destination.latitude,
+              LONGITUDE: destination.longitude,
+            };
+
+            routingAPI(start, end).then((route) => {
+              setRouteData(route);
+            });
+          }
+
+          // Check if arrived
+          const distance = calculateDistance(
             newLocation.coords.latitude,
-            newLocation.coords.longitude
-          ) > 10
-        ) {
-          lastRoutedLocation.current = {
-            latitude: newLocation.coords.latitude,
-            longitude: newLocation.coords.longitude,
-          };
-      
-          // Recalculate route
-          const start = {
-            LATITUDE: newLocation.coords.latitude,
-            LONGITUDE: newLocation.coords.longitude
-          };
-          
-          const end = {
-            LATITUDE: destination.latitude,
-            LONGITUDE: destination.longitude
-          };
-      
-          routingAPI(start, end).then(route => {
-            setRouteData(route);
-          });
+            newLocation.coords.longitude,
+            destination.latitude,
+            destination.longitude
+          );
+
+          if (distance < 20) {
+            setArrived(true);
+          }
         }
-      
-        // Check if arrived
-        const distance = calculateDistance(
-          newLocation.coords.latitude,
-          newLocation.coords.longitude,
-          destination.latitude,
-          destination.longitude
-        );
-      
-        if (distance < 20) {
-          setArrived(true);
-        }
-      });      
+      );
     })();
   }, []);
 
   // Update Current Step
   useEffect(() => {
     if (!currentLocation || !routeData?.route_instructions) return;
-  
+
     // Check distance to each step's coordinate
     routeData.route_instructions.forEach((step, index) => {
       const [_, __, ___, coordsStr] = step;
-      const [stepLat, stepLng] = coordsStr.split(',').map(parseFloat);
-      
+      const [stepLat, stepLng] = coordsStr.split(",").map(parseFloat);
+
       const distance = calculateDistance(
         currentLocation.coords.latitude,
         currentLocation.coords.longitude,
         stepLat,
         stepLng
       );
-  
+
       // If within 20m of a step, advance to next instruction
       if (distance < 20 && index > currentStepIndex) {
         setCurrentStepIndex(index);
@@ -148,54 +151,68 @@ export default function NavigateScreen() {
   }, [currentLocation]);
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
-    // Haversine formula 
+    // Haversine formula
     const R = 6371e3; // meters
-    const φ1 = lat1 * Math.PI/180;
-    const φ2 = lat2 * Math.PI/180;
-    const Δφ = (lat2-lat1) * Math.PI/180;
-    const Δλ = (lon2-lon1) * Math.PI/180;
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
   };
 
   if (!currentLocation) {
-    return <View style={styles.container}><Text>Loading...</Text></View>;
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
   }
 
   function DirectionsPanel({ instructions, currentIndex }) {
     if (!instructions || currentIndex >= instructions.length) return null;
-    
-    // Get current instruction and next 
+
+    // Get current instruction and next
     const visibleInstructions = instructions.slice(
-      currentIndex, 
+      currentIndex,
       Math.min(currentIndex + 2, instructions.length)
     );
-  
+
     return (
       <View style={styles.directionsContainer}>
         <Text style={styles.directionsHeader}>Step by step instructions</Text>
 
         {visibleInstructions.map((step, index) => {
-          const [turnType, street, distance, _, __, distanceStr, ___, ____, _____, fullInstruction] = step;
+          const [
+            turnType,
+            street,
+            distance,
+            _,
+            __,
+            distanceStr,
+            ___,
+            ____,
+            _____,
+            fullInstruction,
+          ] = step;
           const isCurrent = index === 0;
-          
+
           return (
-            <View 
-              key={index} 
+            <View
+              key={index}
               style={[
                 styles.stepContainer,
-                isCurrent && styles.currentStepContainer
+                isCurrent && styles.currentStepContainer,
               ]}
             >
-              <Text style={[
-                styles.stepText,
-                isCurrent && styles.currentStepText
-              ]}>
+              <Text
+                style={[styles.stepText, isCurrent && styles.currentStepText]}
+              >
                 {isCurrent ? "Current: " : "Next: "}
                 {fullInstruction}
                 {distance > 0 && ` (${distanceStr})`}
@@ -209,7 +226,7 @@ export default function NavigateScreen() {
 
   const handleEndTrip = () => {
     Location.stopLocationUpdatesAsync();
-    router.back(); 
+    router.back();
   };
 
   return (
@@ -255,20 +272,16 @@ export default function NavigateScreen() {
 
       {/* Step-by-step instructions */}
       {routeData?.route_instructions && (
-        <DirectionsPanel 
-            instructions={routeData.route_instructions} 
-            currentIndex={currentStepIndex} 
+        <DirectionsPanel
+          instructions={routeData.route_instructions}
+          currentIndex={currentStepIndex}
         />
       )}
 
       {/* End Trip Button - Floating at bottom */}
-      <TouchableOpacity 
-        style={styles.endTripButton} 
-        onPress={handleEndTrip}
-      >
+      <TouchableOpacity style={styles.endTripButton} onPress={handleEndTrip}>
         <Text style={styles.endTripText}>End Trip</Text>
       </TouchableOpacity>
-
 
       {/* Arrival Notification */}
       {arrived && (
@@ -288,86 +301,86 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   arrow: {
-    backgroundColor: '#FFFFFFB3',
+    backgroundColor: "#FFFFFFB3",
     borderRadius: 20,
     padding: 5,
   },
   arrowText: {
     fontSize: 20,
-    color: 'blue',
+    color: "blue",
   },
   directionsHeader: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     marginBottom: 8,
-    color: '#333',
+    color: "#333",
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
     paddingBottom: 8,
   },
   directionsContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 60,
     left: 20,
     right: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 10,
     padding: 15,
-    maxHeight: 230, 
+    maxHeight: 230,
   },
   directionsTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     marginBottom: 10,
   },
   stepContainer: {
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   currentStepContainer: {
-    backgroundColor: '#f0f8ff',
+    backgroundColor: "#f0f8ff",
   },
   stepText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   currentStepText: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
-    color: '#3498db',
+    color: "#3498db",
   },
   arrivalContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     left: 20,
     right: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   arrivalText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   endTripButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
-    alignSelf: 'center',
-    backgroundColor: '#FF3B30', // Red color for action button
+    alignSelf: "center",
+    backgroundColor: "#FF3B30", // Red color for action button
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 25,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
   endTripText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
     fontSize: 16,
   },
 });
