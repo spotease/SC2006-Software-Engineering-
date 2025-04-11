@@ -4,18 +4,13 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 import { Colors } from "./../../constants/Colors";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TABS = [
   {
     name: "home",
     label: "Home",
     icon: (color) => <AntDesign name="home" size={24} color={color} />,
-  },
-  {
-    name: "activity",
-    label: "Activity",
-    icon: (color) => <Octicons name="checklist" size={24} color={color} />,
   },
   {
     name: "history",
@@ -25,10 +20,10 @@ const TABS = [
     ),
   },
   {
-    name: "logout", // This will be our action tab
+    name: "logOut", // This will be our action tab
     label: "Logout",
     icon: (color) => <MaterialIcons name="logout" size={24} color={color} />,
-    isAction: true // Flag to identify this as an action tab
+    isAction: true, // Flag to identify this as an action tab
   },
 ];
 
@@ -36,24 +31,20 @@ export default function TabLayout() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    Alert.alert(
-      "Log Out",
-      "Are you sure you want to log out?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
+    Alert.alert("Log Out", "Are you sure you want to log out?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Log Out",
+        onPress: async () => {
+          await AsyncStorage.clear();
+          router.replace("/login");
         },
-        {
-          text: "Log Out",
-          onPress: async () => {
-            await AsyncStorage.clear();
-            router.replace('/login');
-          },
-          style: "destructive",
-        },
-      ]
-    );
+        style: "destructive",
+      },
+    ]);
   };
 
   return (
@@ -75,7 +66,7 @@ export default function TabLayout() {
                 e.preventDefault(); // Prevent default navigation
                 handleLogout();
               }
-            }
+            },
           }}
           options={{
             tabBarLabel: ({ focused, color }) => (

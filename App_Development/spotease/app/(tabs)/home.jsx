@@ -11,6 +11,7 @@ import SearchBar from "../../components/SearchBar";
 import FilterButton from "../../components/FilterButton";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import searchAPI from "../../hooks/searchAPI";
 import * as Location from "expo-location";
 import carParkRetrieval from "../../hooks/carParkRetrieval";
