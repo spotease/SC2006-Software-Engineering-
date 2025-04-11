@@ -1,4 +1,4 @@
-import checkIndoorRequired from './checkIndoorRequired';
+import checkIndoorRequired from "./checkIndoorRequired";
 
 const indoorCarpark = [
   "MULTI-STOREY CAR PARK",
@@ -8,15 +8,22 @@ const indoorCarpark = [
   "MECHANISED CAR PARK",
 ];
 
-
-const carparkTypeFilter = (weatherForecastInput, carparkInfo, selectedFilters) => {
+const carparkTypeFilter = (
+  weatherForecastInput,
+  carparkInfo,
+  selectedFilters
+) => {
   // console.log("carparkInfo:", carparkInfo);
   // console.log("selectedFilters:", selectedFilters);
 
-  if (!weatherForecastInput || !(carparkInfo.length > 0) || !selectedFilters) return;
+  if (!weatherForecastInput || !(carparkInfo.length > 0) || !selectedFilters)
+    return;
 
   let IndoorCarparkList = [];
-  let IndoorRequired = checkIndoorRequired(weatherForecastInput, selectedFilters); // ✅ use helper
+  let IndoorRequired = checkIndoorRequired(
+    weatherForecastInput,
+    selectedFilters
+  ); // ✅ use helper
 
   // console.log("weather:", weatherForecastInput);
   // console.log("Indoor Required:", IndoorRequired);

@@ -72,30 +72,30 @@
 // 819000–819999	Changi 2	Changi
 // 820000–829999	Punggol	Punggol
 import React, { useState, useEffect } from "react";
-import searchAPI from "./searchAPI"; // Import custom searchAPI hook
+import searchAPI from "../../hooks/searchAPI"; // Import custom searchAPI hook
 const postal_mapping = {
-  "City": [
-    ["000000", "059999"],    // City 1
-    ["060000", "069999"],    // City 2
-    ["070000", "079999"],    // City 3
-    ["080000", "089999"],    // City 4
-    ["170000", "239999"],    // City 5
-    ["240000", "246999"],    // City 6
+  City: [
+    ["000000", "059999"], // City 1
+    ["060000", "069999"], // City 2
+    ["070000", "079999"], // City 3
+    ["080000", "089999"], // City 4
+    ["170000", "239999"], // City 5
+    ["240000", "246999"], // City 6
   ],
-  "Queenstown": [
+  Queenstown: [
     ["090000", "097999"],
     ["110000", "119999"],
     ["130000", "149999"],
   ],
-  "Sentosa": [["098000", "099999"]],
+  Sentosa: [["098000", "099999"]],
   "Bukit Merah": [["150000", "169999"]],
-  "Tanglin": [["247000", "259999"]],
+  Tanglin: [["247000", "259999"]],
   "Bukit Timah": [
     ["260000", "269999"],
     ["270000", "279999"],
     ["580000", "589999"],
   ],
-  "Novena": [
+  Novena: [
     ["280000", "289999"],
     ["290000", "299999"],
   ],
@@ -104,53 +104,64 @@ const postal_mapping = {
     ["310000", "319999"],
     ["320000", "329999"],
   ],
-  "Kallang": [
+  Kallang: [
     ["330000", "339999"],
     ["340000", "349999"],
     ["350000", "359999"],
     ["360000", "379999"],
     ["397000", "399999"],
   ],
-  "Geylang": [["380000", "389999"], ["390000", "396999"]],
-  "Bedok": [
+  Geylang: [
+    ["380000", "389999"],
+    ["390000", "396999"],
+  ],
+  Bedok: [
     ["400000", "419999"],
     ["450000", "489999"],
   ],
   "Marine Parade": [["420000", "449999"]],
-  "Changi": [["490000", "499999"], ["819000", "819999"]],
+  Changi: [
+    ["490000", "499999"],
+    ["819000", "819999"],
+  ],
   "Pasir Ris": [["500000", "519999"]],
-  "Tampines": [["520000", "529999"]],
-  "Hougang": [["530000", "539999"]],
-  "Sengkang": [["540000", "549999"]],
-  "Serangoon": [["550000", "559999"]],
+  Tampines: [["520000", "529999"]],
+  Hougang: [["530000", "539999"]],
+  Sengkang: [["540000", "549999"]],
+  Serangoon: [["550000", "559999"]],
   "Ang Mo Kio": [
     ["560000", "569999"],
     ["787000", "787999"],
     ["788000", "788999"],
     ["789000", "796999"],
   ],
-  "Bishan": [["570000", "579999"]],
-  "Clementi": [["590000", "599999"]],
+  Bishan: [["570000", "579999"]],
+  Clementi: [["590000", "599999"]],
   "Jurong East": [["600000", "627999"]],
-  "Pioneer": [["628000", "628999"]],
-  "Jurong West": [["629000", "636999"], ["640000", "649999"]],
-  "Tuas": [["637000", "638999"]],
+  Pioneer: [["628000", "628999"]],
+  "Jurong West": [
+    ["629000", "636999"],
+    ["640000", "649999"],
+  ],
+  Tuas: [["637000", "638999"]],
   "Jalan Bahar": [["639000", "639999"]],
   "Bukit Batok": [["650000", "669999"]],
   "Bukit Panjang": [["670000", "679999"]],
   "Choa Chu Kang": [["680000", "689999"]],
-  "Tengah": [["690000", "699999"]],
+  Tengah: [["690000", "699999"]],
   "Western Water Catchment": [["700000", "709999"]],
   "Lim Chu Kang": [["710000", "719999"]],
   "Sungei Kadut": [["720000", "728999"]],
-  "Mandai": [["729000", "729999"]],
-  "Woodlands": [["730000", "749999"]],
-  "Sembawang": [["750000", "759999"]],
-  "Yishun": [["760000", "786999"]],
-  "Seletar": [["797000", "809999"], ["810000", "818999"]],
-  "Punggol": [["820000", "999999"]],
+  Mandai: [["729000", "729999"]],
+  Woodlands: [["730000", "749999"]],
+  Sembawang: [["750000", "759999"]],
+  Yishun: [["760000", "786999"]],
+  Seletar: [
+    ["797000", "809999"],
+    ["810000", "818999"],
+  ],
+  Punggol: [["820000", "999999"]],
 };
-
 
 const ConvertPostalToRegion = (selectedPOSTAL) => {
   let resultPostalCode = selectedPOSTAL;
@@ -168,7 +179,6 @@ const ConvertPostalToRegion = (selectedPOSTAL) => {
 };
 
 export default ConvertPostalToRegion;
-
 
 //   const [selectedRegion, setSelectedRegion] = useState(""); // To store the region
 //   /*
@@ -195,7 +205,6 @@ export default ConvertPostalToRegion;
 //   }, [searchResults]);
 //   */
 //  useEffect(()=>{
-
 
 //   if(selectedPOSTAL != null){
 //     console.log(selectedPOSTAL);
