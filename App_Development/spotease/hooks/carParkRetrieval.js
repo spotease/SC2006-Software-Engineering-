@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { Alert } from "react-native";
-import calculateDistance from "./calculateDistance";
-import ConvertCoords from "./ConvertCoords";
-import retrieveLotsAPI from "./retrieveLotsAPI";
+import calculateDistance from "../functions/Location Related/calculateDistance";
+import ConvertCoords from "../functions/Location Related/convertCoords";
+import retrieveLotsAPI from "../functions/Carpark Related/retrieveLotsAPI";
 
 /* Return Values are sortedCarParks*/
 const carParkRetrieval = (selectedDestination, filterRadius) => {
@@ -11,7 +11,6 @@ const carParkRetrieval = (selectedDestination, filterRadius) => {
   const [sortedCarParks, setSortedCarParks] = useState([]);
   const [lotsData, setLotsData] = useState([]);
   const API_URL = `${process.env.EXPO_PUBLIC_RENDER_CARPARK_URL}`;
-  console.log(API_URL);
   const isBusy = useRef(false);
 
   const handleRetrieval = async () => {

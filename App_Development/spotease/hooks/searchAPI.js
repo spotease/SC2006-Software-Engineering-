@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import ConvertCoords from "./ConvertCoords";
+import ConvertCoords from "../functions/Location Related/convertCoords";
 //Custom Hook for fetching search results
 const searchAPI = (userInput) => {
   // State variables

@@ -1,5 +1,5 @@
 import decodePolyline from "./decodePolyline";
-import getAuthToken from "./getAuthToken";
+import getAuthToken from "../Auth/getAuthToken";
 
 async function routingAPI(startDestination, endDestination) {
   if (!startDestination || !endDestination) {
