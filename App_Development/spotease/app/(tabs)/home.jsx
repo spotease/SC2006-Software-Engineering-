@@ -21,27 +21,25 @@ import createLocationHistory from "../../functions/History Related/createLocatio
 import calculateDistance from "../../functions/Location Related/calculateDistance";
 import { useLocalSearchParams } from "expo-router";
 
-// import routingAPI from "../../hooks/routingAPI";
-
 const Home = () => {
-  const mapRef = useRef(null); // Create a ref for MapView
+  const mapRef = useRef(null);
   const [selectedFilters, setSelectedFilters] = useState({
     sheltered_parking: false,
     weather_parking_recommendation: false,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState(null);
-  const { searchResults, loadingFlag } = searchAPI(searchQuery); // Variable to store searchResults from User Input
-  const [selectedDest, setSelectedDest] = useState(null); // Variable to store Destination of User
-  const [filterRadius, setFilterRadius] = useState(1000 / 2); // Variable to store Filter Distance in (m)
+  const { searchResults, loadingFlag } = searchAPI(searchQuery);
+  const [selectedDest, setSelectedDest] = useState(null);
+  const [filterRadius, setFilterRadius] = useState(1000 / 2);
   const { sortedCarParks } = carParkRetrieval(
-    //Variable to store nearby Carparks sorted by nearest distance
     selectedDest,
     filterRadius
   );
-  const [carParkMarkers, setCarParkMarkers] = useState([]); // Variable to store nearby Carpark Markers
-  const [destMarker, setDestMarker] = useState({}); // Variable to store selected destination of User
+  const [carParkMarkers, setCarParkMarkers] = useState([]);
+  const [destMarker, setDestMarker] = useState({});
   const params = useLocalSearchParams();
+  const initialParamProcessed = useRef(false);
 
   useEffect(() => {
     if (!selectedDest || !sortedCarParks || !selectedFilters) return;
@@ -127,9 +125,11 @@ const Home = () => {
     })();
   }, []);
 
+  // Process initial address parameter only once
   useEffect(() => {
-    if (params?.address) {
+    if (params?.address && !initialParamProcessed.current) {
       setSearchQuery(params.address);
+      initialParamProcessed.current = true;
     }
   }, [params]);
 
@@ -157,7 +157,7 @@ const Home = () => {
 
     setDestMarker(markerProperties);
     setSelectedDest(item);
-    setSearchQuery("");
+    setSearchQuery(""); // Clear search query after selecting a destination
     console.log("Destination Selected");
 
     createLocationHistory({
@@ -184,6 +184,11 @@ const Home = () => {
     }
   };
 
+  // Function to handle search input changes
+  const handleSearchChange = (text) => {
+    setSearchQuery(text);
+  };
+
   const filterOptions = [
     { label: "1. Sheltered Parking", value: "sheltered_parking" },
     {
@@ -196,7 +201,7 @@ const Home = () => {
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
         <View style={styles.searchBarContainer}>
-          <SearchBar query={searchQuery} onSearch={setSearchQuery} />
+          <SearchBar query={searchQuery} onSearch={handleSearchChange} />
         </View>
 
         <FilterButton
@@ -233,14 +238,14 @@ const Home = () => {
               latitude: destMarker.LATITUDE,
               longitude: destMarker.LONGITUDE,
             }}
-            key={`dest-${destMarker.LATITUDE}-${destMarker.LONGITUDE}`} // Unique key for destination marker
+            key={`dest-${destMarker.LATITUDE}-${destMarker.LONGITUDE}`}
           />
         )}
 
         {/* Car Park Markers */}
         {carParkMarkers.map((item) => (
           <Marker
-            key={`${item.CARPARK_NO}-${item.LATITUDE}-${item.LONGITUDE}`} // Combine CARPARK_NO and LAT/LNG to ensure uniqueness
+            key={`${item.id}-${item.LATITUDE}-${item.LONGITUDE}`}
             coordinate={{
               latitude: item.LATITUDE,
               longitude: item.LONGITUDE,
@@ -343,6 +348,11 @@ const styles = StyleSheet.create({
     elevation: 3,
     justifyContent: "flex-start",
     alignItems: "flex-start",
+  },
+  itemContainer: {
+    marginHorizontal: 10,
+    marginTop: 2,
+    marginBottom: 2,
   },
 });
 
