@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginTop: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   searchBarText: {
     color: "#FFFFFF",
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "center",
     fontStyle: "italic",
-    marginBottom: 30,
+    marginBottom: 20,
   },
   sectionTitle: {
     color: "#FFFFFF",
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
     alignItems: "center",
-    maxHeight: 200,
+    maxHeight: 150,
   },
   savedImage: {
     width: 200,
