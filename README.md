@@ -17,12 +17,14 @@ Backend Github Link: [Link]
 <a id='folder-structure'></a>
 ## Folder Structure
 
-```
-App_Development/       # Contains the main application code
-Final_Documentation/   # SRS, Use Case Document, Diagrams, and Demo Script
-Lab 1/                 # Lab 1 Submission
-Lab 2/                 # Lab 2 Submission
-Lab 3/                 # Lab 3 Submission
+```terminal
+.
+├── App_Development       # Contains the main application code
+├── Final_Documentation   # SRS, Use Case Document, Diagrams, and Demo Script
+├── Lab 1                 # Lab 1 Submission
+├── Lab 2                 # Lab 2 Submission
+├── Lab 3                 # Lab 3 Submission
+└── README.md
 ```
 The SRS appendix includes:
 
