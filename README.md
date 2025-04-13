@@ -12,7 +12,7 @@ Backend Github Link: [Link]
 
 1. [Tech Stack](#tech-stack)
 2. [Develop](#develop)
-3. [Contributors Members](#contributors)
+3. [Contributors](#contributors)
 
 <a id='tech-stack'></a>
 
