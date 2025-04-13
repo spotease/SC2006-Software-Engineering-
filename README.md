@@ -5,7 +5,7 @@ SpotEase is a mobile app built with React Native and Expo CLI to tackle parking 
 SpotEase uses real-time data on parking availability to reduce search time and optimize navigation. Designed for commuters, ride-hailing drivers, and tourists, the app enhances convenience and improves the overall driving experience in high-demand areas.
 
 
-Backend Github Link: [Link]
+Backend Github Link: [Link](https://github.com/JanuaryCJ/SC2006-backend-spotease-render.git)
 
 ## Table of Contents
 
