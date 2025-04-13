@@ -37,6 +37,37 @@ We built **SpotEase** with a powerful set of technologies:
 
 ## Develop
 
+> To further develop this project, clone this repo and make sure you have the following prerequisites.
+
+- [Node](https://nodejs.org/en/download/)
+- [Expo Go](https://expo.dev/client) on your preferred device
+
+> From your command line go to the folder directory and run the following scripts in the terminal.
+
+1\. Clone the repo
+
+```terminal
+git clone https://github.com/spotease/SC2006-Software-Engineering-.git
+```
+
+2\. Go to project directory
+
+```terminal
+cd App_Development/spotease
+```
+
+3\. Install dependencies
+
+```terminal
+npm install
+```
+
+4\. Start the expo
+
+```terminal
+npx expo start
+```
+
 <a id='contributors'></a>
 
 ## Contributors
