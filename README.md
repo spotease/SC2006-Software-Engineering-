@@ -24,7 +24,20 @@ Lab 1/                 # Lab 1 Submission
 Lab 2/                 # Lab 2 Submission
 Lab 3/                 # Lab 3 Submission
 ```
+The SRS appendix includes:
 
+- Use Case Diagram and Descriptions
+
+- Class Diagram / Key boundary and control classes
+
+- State Machine Diagram / Dialog Map
+
+- System Architecture Diagram
+
+- Sequence Diagrams
+
+- Unit Testing details
+  
 <a id='tech-stack'></a>
 
 ## 💻 Tech Stack
