@@ -9,9 +9,21 @@ Backend Github Link: [Link]
 
 ## Table of Contents
 
-1. [Tech Stack](#tech-stack)
-2. [Develop](#develop)
-3. [Contributors](#contributors)
+1. [Folder Structure](#folder-structure)
+2. [Tech Stack](#tech-stack)
+3. [Develop](#develop)
+4. [Contributors](#contributors)
+
+<a id='folder-structure'></a>
+## Folder Structure
+
+```
+App_Development/       # Contains the main application code
+Final_Documentation/   # SRS, Use Case Document, Diagrams, and Demo Script
+Lab 1/                 # Lab 1 Submission
+Lab 2/                 # Lab 2 Submission
+Lab 3/                 # Lab 3 Submission
+```
 
 <a id='tech-stack'></a>
 
