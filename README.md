@@ -48,6 +48,6 @@ We built **SpotEase** with a powerful set of technologies:
 | Glynis Looi Xin Lin | [@glynislxl](https://github.com/glynislxl) | Front-End Developer |
 | Lee Yun Jia | [@yunjialeee](https://github.com/yunjialeee) | Front-End Developer |
 | Jan Chen Jie | [@JanuaryCJ](https://github.com/JanuaryCJ) | Back-End Developer |
-| Lee Lin Yang Glenn | [@Ariesura](https://github.com/Ariesura) Back-End Developer |
+| Lee Lin Yang Glenn | [@Ariesura](https://github.com/Ariesura) | Back-End Developer |
 | Manasi Singh | [@manameme](https://github.com/manameme) | Back-End Developer |
 | Kathri Arachchige Don Mayukhi Nimesha Siriwardana | [@mayukhii](https://github.com/mayukhii) | Front-End Developer |
